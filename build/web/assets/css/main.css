@@ -1,0 +1,152 @@
+/* ===== Base & Reset ===== */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: #f4f7f6;
+    color: #333;
+}
+
+.page-title {
+    text-align: center;
+    margin: 10px 0 30px;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.text-danger {
+    color: #e74c3c;
+    background-color: #fadbd8;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+/* ===== Form (Create/Edit) ===== */
+.form-container {
+    width: 70%;
+    max-width: 800px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Sử dụng Grid để chia 2 cột cho các trường dữ liệu ngắn */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px 20px;
+}
+
+.form-group {
+    margin-bottom: 5px;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #dce1e4;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #3498db;
+    outline: none;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+}
+
+.form-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    justify-content: flex-end;
+}
+
+/* ===== Buttons ===== */
+.btn {
+    padding: 8px 16px;
+    text-decoration: none;
+    color: white;
+    border-radius: 5px;
+    display: inline-block;
+    cursor: pointer;
+    border: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.btn-add { background-color: #2ecc71; }
+.btn-add:hover { background-color: #27ae60; transform: translateY(-1px); }
+
+.btn-edit { background-color: #f1c40f; color: #333; }
+.btn-edit:hover { background-color: #f39c12; transform: translateY(-1px); }
+
+.btn-delete { background-color: #e74c3c; }
+.btn-delete:hover { background-color: #c0392b; transform: translateY(-1px); }
+
+.btn-secondary { background-color: #95a5a6; }
+.btn-secondary:hover { background-color: #7f8c8d; }
+
+/* ===== Table ===== */
+.table-container {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    margin-top: 15px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+th {
+    background-color: #f8f9fa;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+tbody tr:hover {
+    background-color: #f1f4f6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    .form-container {
+        width: 95%;
+    }
+}
