@@ -5,7 +5,7 @@ import javax.annotation.Generated;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.StaticMetamodel;
 
-@Generated(value="EclipseLink-2.7.9.v20210604-rNA", date="2026-03-07T15:58:51")
+@Generated(value="EclipseLink-2.7.9.v20210604-rNA", date="2026-03-11T20:27:50")
 @StaticMetamodel(WishlistDTO.class)
 public class WishlistDTO_ { 
 

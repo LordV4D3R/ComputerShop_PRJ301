@@ -38,6 +38,19 @@ public class OrderItemDAO {
         }
     }
 
+    public List<OrderItemDTO> getOrderItemsByOrderId(String orderId) {
+        EntityManager em = JPAUtils.getEntityManager();
+        try {
+            String jpql = "SELECT oi FROM OrderItemDTO oi "
+                    + "WHERE oi.orderId = :orderId AND oi.isDeleted = false";
+            TypedQuery<OrderItemDTO> query = em.createQuery(jpql, OrderItemDTO.class);
+            query.setParameter("orderId", orderId);
+            return query.getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
     public OrderItemDTO getOrderItemById(String id) {
         EntityManager em = JPAUtils.getEntityManager();
         try {

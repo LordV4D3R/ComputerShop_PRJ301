@@ -8,7 +8,12 @@
     <title>Cập nhật Order</title>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/css/main.css">
     <style>
-        select { width: 100%; padding: 10px 12px; border: 1px solid #dce1e4; border-radius: 6px; }
+        .field-note {
+            display: block;
+            margin-top: 6px;
+            color: #666;
+            font-size: 13px;
+        }
     </style>
 </head>
 <body>
@@ -43,7 +48,7 @@
 
                 <div class="form-group">
                     <label>Tổng tiền:</label>
-                    <input type="number" name="totalPrice" step="0.01" value="${order.totalPrice}" required>
+                    <input type="number" name="totalPrice" step="0.01" min="0" value="${order.totalPrice}" required>
                 </div>
 
                 <div class="form-group full-width">
@@ -52,12 +57,12 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Trạng thái (Admin đối soát QR):</label>
-                    <select name="status" required>
-                        <option value="Pending" ${order.status == 'Pending' ? 'selected' : ''}>Pending (Chờ thanh toán)</option>
-                        <option value="Paid" ${order.status == 'Paid' ? 'selected' : ''}>Paid (Đã thanh toán QR)</option>
-                        <option value="Cancelled" ${order.status == 'Cancelled' ? 'selected' : ''}>Cancelled (Đã hủy)</option>
-                    </select>
+                    <label>Trạng thái:</label>
+                    <input type="text" value="${order.status}" readonly>
+                    <small class="field-note">
+                        Không chỉnh sửa trạng thái ở form này.
+                        Chỉ dùng Approve / Cancel trong danh sách hoặc chi tiết đơn hàng.
+                    </small>
                 </div>
 
                 <div class="form-actions">

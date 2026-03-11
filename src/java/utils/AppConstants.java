@@ -4,6 +4,12 @@ public class AppConstants {
 
     // --- VIEWS ---
     public static final String LOGIN_PAGE = "login.jsp";
+    public static final String REGISTER_PAGE = "register.jsp";
+    public static final String HOME_PAGE = "views/client/home/home.jsp";
+    
+    public static final String CLIENT_SHOP_PAGE = "/views/client/shop/selectProduct.jsp";
+    public static final String CLIENT_CART_PAGE = "/views/client/shop/cart.jsp";
+    public static final String CLIENT_CHECKOUT_PAGE = "/views/client/order/checkout.jsp";
 
     public static final String PRODUCT_LIST_PAGE = "views/staff/product/list.jsp";
     public static final String PRODUCT_CREATE_PAGE = "views/staff/product/create.jsp";
@@ -20,6 +26,9 @@ public class AppConstants {
     public static final String ORDER_ITEM_LIST_PAGE = "views/staff/orderitem/list.jsp";
     public static final String ORDER_ITEM_CREATE_PAGE = "views/staff/orderitem/create.jsp";
     public static final String ORDER_ITEM_EDIT_PAGE = "views/staff/orderitem/edit.jsp";
+    public static final String ORDER_DETAIL_PAGE = "views/staff/order/detail.jsp";
+    public static final String MY_ORDER_LIST_PAGE = "views/client/order/myOrderList.jsp";
+    public static final String MY_ORDER_DETAIL_PAGE = "views/client/order/myOrderDetail.jsp";
 
     public static final String ACCOUNT_LIST_PAGE = "views/admin/account/list.jsp";
     public static final String ACCOUNT_CREATE_PAGE = "views/admin/account/create.jsp";
@@ -32,6 +41,7 @@ public class AppConstants {
     public static final String REVIEW_LIST_PAGE = "views/client/review/list.jsp";
     public static final String REVIEW_CREATE_PAGE = "views/client/review/create.jsp";
     public static final String REVIEW_EDIT_PAGE = "views/client/review/edit.jsp";
+
     // --- CONTROLLERS ---
     public static final String MAIN_CONTROLLER = "MainController";
     public static final String PRODUCT_CONTROLLER = "ProductController";
@@ -41,6 +51,17 @@ public class AppConstants {
     public static final String ACCOUNT_CONTROLLER = "AccountController";
     public static final String WISHLIST_CONTROLLER = "WishlistController";
     public static final String REVIEW_CONTROLLER = "ReviewController";
+
+    // --- SESSION ---
+    public static final String SESSION_LOGIN_USER = "LOGIN_USER";
+    public static final String ACTION_SHOW_HOME = "showHome";
+    // --- AUTH ACTIONS ---
+    public static final String ACTION_SHOW_LOGIN = "showLogin";
+    public static final String ACTION_LOGIN = "login";
+    public static final String ACTION_LOGOUT = "logout";
+    public static final String ACTION_SHOW_REGISTER = "showRegister";
+    public static final String ACTION_REGISTER = "register";
+
     // --- PRODUCT ACTIONS ---
     public static final String ACTION_LIST_PRODUCT = "listProduct";
     public static final String ACTION_SHOW_CREATE_PRODUCT = "showCreateProduct";
@@ -48,6 +69,12 @@ public class AppConstants {
     public static final String ACTION_DELETE_PRODUCT = "deleteProduct";
     public static final String ACTION_EDIT_PRODUCT = "editProduct";
     public static final String ACTION_UPDATE_PRODUCT = "updateProduct";
+    public static final String ACTION_SHOW_SHOP = "showShop";
+    public static final String ACTION_ADD_TO_CART = "addToCart";
+    public static final String ACTION_SHOW_CART = "showCart";
+    public static final String ACTION_INCREASE_CART_ITEM = "increaseCartItem";
+    public static final String ACTION_DECREASE_CART_ITEM = "decreaseCartItem";
+    public static final String ACTION_REMOVE_FROM_CART = "removeFromCart";
 
     // --- CATEGORY ACTIONS ---
     public static final String ACTION_LIST_CATEGORY = "listCategory";
@@ -64,6 +91,12 @@ public class AppConstants {
     public static final String ACTION_DELETE_ORDER = "deleteOrder";
     public static final String ACTION_EDIT_ORDER = "editOrder";
     public static final String ACTION_UPDATE_ORDER = "updateOrder";
+    public static final String ACTION_SHOW_CHECKOUT = "showCheckout";
+    public static final String ACTION_PLACE_ORDER_FROM_CART = "placeOrderFromCart";
+    public static final String ACTION_APPROVE_ORDER = "approveOrder";
+    public static final String ACTION_CANCEL_ORDER = "cancelOrder";
+    public static final String ACTION_LIST_MY_ORDER = "listMyOrder";
+    public static final String ACTION_SHOW_MY_ORDER_DETAIL = "showMyOrderDetail";
 
     // --- ORDER ITEM ACTIONS ---
     public static final String ACTION_LIST_ORDER_ITEM = "listOrderItem";
@@ -72,6 +105,7 @@ public class AppConstants {
     public static final String ACTION_DELETE_ORDER_ITEM = "deleteOrderItem";
     public static final String ACTION_EDIT_ORDER_ITEM = "editOrderItem";
     public static final String ACTION_UPDATE_ORDER_ITEM = "updateOrderItem";
+    public static final String ACTION_SHOW_ORDER_DETAIL = "showOrderDetail";
 
     // --- ACCOUNT ACTIONS ---
     public static final String ACTION_LIST_ACCOUNT = "listAccount";

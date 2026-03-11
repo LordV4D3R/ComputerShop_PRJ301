@@ -17,18 +17,42 @@ public class MainController extends HttpServlet {
         response.setContentType("text/html; charset=UTF-8");
 
         String action = request.getParameter("action");
-        String url = AppConstants.LOGIN_PAGE;
+        String url = AppConstants.PRODUCT_CONTROLLER;
+        if (action == null || action.trim().isEmpty()) {
+            action = AppConstants.ACTION_SHOW_HOME;
+        }
 
         try {
-            if (action == null) {
-                url = AppConstants.LOGIN_PAGE;
+            if (AppConstants.ACTION_SHOW_HOME.equals(action)) {
+                url = AppConstants.HOME_PAGE;
+            } else if (AppConstants.ACTION_SHOW_SHOP.equals(action)) {
+                url = "ProductController";
+            } else if (AppConstants.ACTION_SHOW_LOGIN.equals(action)
+                    || AppConstants.ACTION_LOGIN.equals(action)
+                    || AppConstants.ACTION_LOGOUT.equals(action)
+                    || AppConstants.ACTION_SHOW_REGISTER.equals(action)
+                    || AppConstants.ACTION_REGISTER.equals(action)
+                    || AppConstants.ACTION_LIST_ACCOUNT.equals(action)
+                    || AppConstants.ACTION_SHOW_CREATE_ACCOUNT.equals(action)
+                    || AppConstants.ACTION_INSERT_ACCOUNT.equals(action)
+                    || AppConstants.ACTION_DELETE_ACCOUNT.equals(action)
+                    || AppConstants.ACTION_EDIT_ACCOUNT.equals(action)
+                    || AppConstants.ACTION_UPDATE_ACCOUNT.equals(action)) {
+
+                url = AppConstants.ACCOUNT_CONTROLLER;
 
             } else if (AppConstants.ACTION_LIST_PRODUCT.equals(action)
                     || AppConstants.ACTION_SHOW_CREATE_PRODUCT.equals(action)
                     || AppConstants.ACTION_INSERT_PRODUCT.equals(action)
                     || AppConstants.ACTION_DELETE_PRODUCT.equals(action)
                     || AppConstants.ACTION_EDIT_PRODUCT.equals(action)
-                    || AppConstants.ACTION_UPDATE_PRODUCT.equals(action)) {
+                    || AppConstants.ACTION_UPDATE_PRODUCT.equals(action)
+                    || AppConstants.ACTION_SHOW_SHOP.equals(action)
+                    || AppConstants.ACTION_ADD_TO_CART.equals(action)
+                    || AppConstants.ACTION_SHOW_CART.equals(action)
+                    || AppConstants.ACTION_INCREASE_CART_ITEM.equals(action)
+                    || AppConstants.ACTION_DECREASE_CART_ITEM.equals(action)
+                    || AppConstants.ACTION_REMOVE_FROM_CART.equals(action)) {
 
                 url = AppConstants.PRODUCT_CONTROLLER;
 
@@ -44,11 +68,17 @@ public class MainController extends HttpServlet {
             } else if (AppConstants.ACTION_LIST_ORDER.equals(action)
                     || AppConstants.ACTION_SHOW_CREATE_ORDER.equals(action)
                     || AppConstants.ACTION_INSERT_ORDER.equals(action)
-                    || AppConstants.ACTION_DELETE_ORDER.equals(action)
                     || AppConstants.ACTION_EDIT_ORDER.equals(action)
-                    || AppConstants.ACTION_UPDATE_ORDER.equals(action)) {
-
-                url = AppConstants.ORDER_CONTROLLER;
+                    || AppConstants.ACTION_UPDATE_ORDER.equals(action)
+                    || AppConstants.ACTION_DELETE_ORDER.equals(action)
+                    || AppConstants.ACTION_SHOW_ORDER_DETAIL.equals(action)
+                    || AppConstants.ACTION_APPROVE_ORDER.equals(action)
+                    || AppConstants.ACTION_CANCEL_ORDER.equals(action)
+                    || AppConstants.ACTION_SHOW_CHECKOUT.equals(action)
+                    || AppConstants.ACTION_PLACE_ORDER_FROM_CART.equals(action)
+                    || AppConstants.ACTION_LIST_MY_ORDER.equals(action)
+                    || AppConstants.ACTION_SHOW_MY_ORDER_DETAIL.equals(action)) {
+                url = "OrderController";
 
             } else if (AppConstants.ACTION_LIST_ORDER_ITEM.equals(action)
                     || AppConstants.ACTION_SHOW_CREATE_ORDER_ITEM.equals(action)
@@ -59,15 +89,6 @@ public class MainController extends HttpServlet {
 
                 url = AppConstants.ORDER_ITEM_CONTROLLER;
 
-            } else if (AppConstants.ACTION_LIST_ACCOUNT.equals(action)
-                    || AppConstants.ACTION_SHOW_CREATE_ACCOUNT.equals(action)
-                    || AppConstants.ACTION_INSERT_ACCOUNT.equals(action)
-                    || AppConstants.ACTION_DELETE_ACCOUNT.equals(action)
-                    || AppConstants.ACTION_EDIT_ACCOUNT.equals(action)
-                    || AppConstants.ACTION_UPDATE_ACCOUNT.equals(action)) {
-
-                url = AppConstants.ACCOUNT_CONTROLLER;
-
             } else if (AppConstants.ACTION_LIST_WISHLIST.equals(action)
                     || AppConstants.ACTION_SHOW_CREATE_WISHLIST.equals(action)
                     || AppConstants.ACTION_INSERT_WISHLIST.equals(action)
@@ -76,7 +97,7 @@ public class MainController extends HttpServlet {
                     || AppConstants.ACTION_UPDATE_WISHLIST.equals(action)) {
 
                 url = AppConstants.WISHLIST_CONTROLLER;
-                
+
             } else if (AppConstants.ACTION_LIST_REVIEW.equals(action)
                     || AppConstants.ACTION_SHOW_CREATE_REVIEW.equals(action)
                     || AppConstants.ACTION_INSERT_REVIEW.equals(action)

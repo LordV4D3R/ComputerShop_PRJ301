@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import utils.AppConstants;
+import utils.PasswordUtils;
 
 public class AccountController extends HttpServlet {
 
@@ -20,87 +21,201 @@ public class AccountController extends HttpServlet {
         response.setContentType("text/html; charset=UTF-8");
 
         String action = request.getParameter("action");
-        String url = AppConstants.ACCOUNT_LIST_PAGE;
+        String url = AppConstants.LOGIN_PAGE;
 
         try {
             AccountDAO accountDAO = new AccountDAO();
 
-            if (AppConstants.ACTION_LIST_ACCOUNT.equals(action)) {
-                List<AccountDTO> listAccount = accountDAO.getAllAccounts();
-                request.setAttribute("listAccount", listAccount);
-                url = AppConstants.ACCOUNT_LIST_PAGE;
+            if (action == null || AppConstants.ACTION_SHOW_LOGIN.equals(action)) {
+                url = AppConstants.LOGIN_PAGE;
 
-            } else if (AppConstants.ACTION_SHOW_CREATE_ACCOUNT.equals(action)) {
-                url = AppConstants.ACCOUNT_CREATE_PAGE;
+            } else if (AppConstants.ACTION_SHOW_REGISTER.equals(action)) {
+                url = AppConstants.REGISTER_PAGE;
 
-            } else if (AppConstants.ACTION_INSERT_ACCOUNT.equals(action)) {
-                String username = request.getParameter("username");
-                String hashPassword = request.getParameter("hashPassword");
-                String address = request.getParameter("address");
-                String phoneNumber = request.getParameter("phoneNumber");
-                String fullname = request.getParameter("fullname");
-                String email = request.getParameter("email");
-                String role = request.getParameter("role");
-                String imageUrl = request.getParameter("imageUrl");
-                String status = request.getParameter("status");
+            } else if (AppConstants.ACTION_LOGIN.equals(action)) {
+                String username = trim(request.getParameter("username"));
+                String password = trim(request.getParameter("hashPassword"));
 
-                AccountDTO existed = accountDAO.getAccountByUsername(username);
-                if (existed != null) {
-                    request.setAttribute("error", "Username đã tồn tại.");
-                    url = AppConstants.ACCOUNT_CREATE_PAGE;
+                if (username.isEmpty() || password.isEmpty()) {
+                    request.setAttribute("error", "Vui lòng nhập đầy đủ username và password.");
+                    request.setAttribute("username", username);
+                    url = AppConstants.LOGIN_PAGE;
                 } else {
-                    AccountDTO account = new AccountDTO(
-                            username, hashPassword, address, phoneNumber,
-                            fullname, email, role, imageUrl, status
-                    );
+                    String hashedPassword = PasswordUtils.hashPassword(password);
+                    AccountDTO loginUser = accountDAO.checkLogin(username, hashedPassword);
 
-                    accountDAO.create(account);
-                    response.sendRedirect(AppConstants.MAIN_CONTROLLER + "?action=" + AppConstants.ACTION_LIST_ACCOUNT);
+                    if (loginUser == null) {
+                        request.setAttribute("error", "Sai tài khoản, mật khẩu hoặc tài khoản không hoạt động.");
+                        request.setAttribute("username", username);
+                        url = AppConstants.LOGIN_PAGE;
+                    } else {
+                        request.getSession().setAttribute(AppConstants.SESSION_LOGIN_USER, loginUser);
+                        request.getSession().setAttribute("successMessage", "Đăng nhập thành công.");
+                        redirectByRole(response, loginUser);
+                        return;
+                    }
+                }
+
+            } else if (AppConstants.ACTION_LOGOUT.equals(action)) {
+                request.getSession().removeAttribute(AppConstants.SESSION_LOGIN_USER);
+                request.getSession().setAttribute("successMessage", "Đăng xuất thành công.");
+                response.sendRedirect(AppConstants.MAIN_CONTROLLER + "?action=" + AppConstants.ACTION_SHOW_LOGIN);
+                return;
+
+            } else if (AppConstants.ACTION_REGISTER.equals(action)) {
+                String username = trim(request.getParameter("username"));
+                String password = trim(request.getParameter("hashPassword"));
+                String confirmPassword = trim(request.getParameter("confirmPassword"));
+                String fullname = trim(request.getParameter("fullname"));
+                String email = trim(request.getParameter("email"));
+                String phoneNumber = trim(request.getParameter("phoneNumber"));
+                String address = trim(request.getParameter("address"));
+
+                request.setAttribute("username", username);
+                request.setAttribute("fullname", fullname);
+                request.setAttribute("email", email);
+                request.setAttribute("phoneNumber", phoneNumber);
+                request.setAttribute("address", address);
+
+                if (username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+                    request.setAttribute("error", "Username, password và confirm password không được để trống.");
+                    url = AppConstants.REGISTER_PAGE;
+
+                } else if (!password.equals(confirmPassword)) {
+                    request.setAttribute("error", "Confirm password không khớp.");
+                    url = AppConstants.REGISTER_PAGE;
+
+                } else {
+                    AccountDTO existed = accountDAO.getAccountByUsername(username);
+                    if (existed != null) {
+                        request.setAttribute("error", "Username đã tồn tại.");
+                        url = AppConstants.REGISTER_PAGE;
+                    } else {
+                        AccountDTO account = new AccountDTO(
+                                username,
+                                PasswordUtils.hashPassword(password),
+                                address,
+                                phoneNumber,
+                                fullname,
+                                email,
+                                "CUSTOMER",
+                                "",
+                                "ACTIVE"
+                        );
+
+                        boolean success = accountDAO.create(account);
+                        if (success) {
+                            request.getSession().setAttribute("successMessage", "Đăng ký thành công. Bạn hãy đăng nhập.");
+                            response.sendRedirect(AppConstants.MAIN_CONTROLLER + "?action=" + AppConstants.ACTION_SHOW_LOGIN);
+                            return;
+                        } else {
+                            request.setAttribute("error", "Đăng ký thất bại.");
+                            url = AppConstants.REGISTER_PAGE;
+                        }
+                    }
+                }
+
+            } else {
+                AccountDTO loginUser = getLoginUser(request);
+                if (!isAdmin(loginUser)) {
+                    request.getSession().setAttribute("errorMessage", "Chỉ ADMIN mới được quản lý tài khoản.");
+                    response.sendRedirect(AppConstants.MAIN_CONTROLLER + "?action=" + AppConstants.ACTION_SHOW_LOGIN);
                     return;
                 }
 
-            } else if (AppConstants.ACTION_EDIT_ACCOUNT.equals(action)) {
-                String id = request.getParameter("id");
-                AccountDTO account = accountDAO.getAccountById(id);
-
-                if (account == null) {
-                    request.setAttribute("error", "Account không tồn tại hoặc đã bị xóa.");
-                    request.setAttribute("listAccount", accountDAO.getAllAccounts());
+                if (AppConstants.ACTION_LIST_ACCOUNT.equals(action)) {
+                    List<AccountDTO> listAccount = accountDAO.getAllAccounts();
+                    request.setAttribute("listAccount", listAccount);
                     url = AppConstants.ACCOUNT_LIST_PAGE;
-                } else {
-                    request.setAttribute("account", account);
-                    url = AppConstants.ACCOUNT_EDIT_PAGE;
+
+                } else if (AppConstants.ACTION_SHOW_CREATE_ACCOUNT.equals(action)) {
+                    url = AppConstants.ACCOUNT_CREATE_PAGE;
+
+                } else if (AppConstants.ACTION_INSERT_ACCOUNT.equals(action)) {
+                    String username = trim(request.getParameter("username"));
+                    String password = trim(request.getParameter("hashPassword"));
+                    String address = trim(request.getParameter("address"));
+                    String phoneNumber = trim(request.getParameter("phoneNumber"));
+                    String fullname = trim(request.getParameter("fullname"));
+                    String email = trim(request.getParameter("email"));
+                    String role = trim(request.getParameter("role"));
+                    String imageUrl = trim(request.getParameter("imageUrl"));
+                    String status = trim(request.getParameter("status"));
+
+                    if (username.isEmpty() || password.isEmpty()) {
+                        request.setAttribute("error", "Username và password không được để trống.");
+                        url = AppConstants.ACCOUNT_CREATE_PAGE;
+                    } else {
+                        AccountDTO existed = accountDAO.getAccountByUsername(username);
+                        if (existed != null) {
+                            request.setAttribute("error", "Username đã tồn tại.");
+                            url = AppConstants.ACCOUNT_CREATE_PAGE;
+                        } else {
+                            AccountDTO account = new AccountDTO(
+                                    username,
+                                    PasswordUtils.hashPassword(password),
+                                    address,
+                                    phoneNumber,
+                                    fullname,
+                                    email,
+                                    role,
+                                    imageUrl,
+                                    status
+                            );
+
+                            accountDAO.create(account);
+                            response.sendRedirect(AppConstants.MAIN_CONTROLLER + "?action=" + AppConstants.ACTION_LIST_ACCOUNT);
+                            return;
+                        }
+                    }
+
+                } else if (AppConstants.ACTION_EDIT_ACCOUNT.equals(action)) {
+                    String id = request.getParameter("id");
+                    AccountDTO account = accountDAO.getAccountById(id);
+
+                    if (account == null) {
+                        request.setAttribute("error", "Account không tồn tại hoặc đã bị xóa.");
+                        request.setAttribute("listAccount", accountDAO.getAllAccounts());
+                        url = AppConstants.ACCOUNT_LIST_PAGE;
+                    } else {
+                        request.setAttribute("account", account);
+                        url = AppConstants.ACCOUNT_EDIT_PAGE;
+                    }
+
+                } else if (AppConstants.ACTION_UPDATE_ACCOUNT.equals(action)) {
+                    String id = request.getParameter("id");
+                    AccountDTO account = accountDAO.getAccountById(id);
+
+                    if (account != null) {
+                        account.setUsername(trim(request.getParameter("username")));
+                        account.setAddress(trim(request.getParameter("address")));
+                        account.setPhoneNumber(trim(request.getParameter("phoneNumber")));
+                        account.setFullname(trim(request.getParameter("fullname")));
+                        account.setEmail(trim(request.getParameter("email")));
+                        account.setRole(trim(request.getParameter("role")));
+                        account.setImageUrl(trim(request.getParameter("imageUrl")));
+                        account.setStatus(trim(request.getParameter("status")));
+
+                        String newPassword = trim(request.getParameter("newPassword"));
+                        if (!newPassword.isEmpty()) {
+                            account.setHashPassword(PasswordUtils.hashPassword(newPassword));
+                        }
+
+                        accountDAO.update(account);
+                    }
+
+                    response.sendRedirect(AppConstants.MAIN_CONTROLLER + "?action=" + AppConstants.ACTION_LIST_ACCOUNT);
+                    return;
+
+                } else if (AppConstants.ACTION_DELETE_ACCOUNT.equals(action)) {
+                    String id = request.getParameter("id");
+                    if (id != null && !id.trim().isEmpty()) {
+                        accountDAO.delete(id);
+                    }
+
+                    response.sendRedirect(AppConstants.MAIN_CONTROLLER + "?action=" + AppConstants.ACTION_LIST_ACCOUNT);
+                    return;
                 }
-
-            } else if (AppConstants.ACTION_UPDATE_ACCOUNT.equals(action)) {
-                String id = request.getParameter("id");
-                AccountDTO account = accountDAO.getAccountById(id);
-
-                if (account != null) {
-                    account.setUsername(request.getParameter("username"));
-                    account.setHashPassword(request.getParameter("hashPassword"));
-                    account.setAddress(request.getParameter("address"));
-                    account.setPhoneNumber(request.getParameter("phoneNumber"));
-                    account.setFullname(request.getParameter("fullname"));
-                    account.setEmail(request.getParameter("email"));
-                    account.setRole(request.getParameter("role"));
-                    account.setImageUrl(request.getParameter("imageUrl"));
-                    account.setStatus(request.getParameter("status"));
-
-                    accountDAO.update(account);
-                }
-
-                response.sendRedirect(AppConstants.MAIN_CONTROLLER + "?action=" + AppConstants.ACTION_LIST_ACCOUNT);
-                return;
-
-            } else if (AppConstants.ACTION_DELETE_ACCOUNT.equals(action)) {
-                String id = request.getParameter("id");
-                if (id != null && !id.trim().isEmpty()) {
-                    accountDAO.delete(id);
-                }
-
-                response.sendRedirect(AppConstants.MAIN_CONTROLLER + "?action=" + AppConstants.ACTION_LIST_ACCOUNT);
-                return;
             }
 
         } catch (Exception e) {
@@ -109,6 +224,36 @@ public class AccountController extends HttpServlet {
         }
 
         request.getRequestDispatcher(url).forward(request, response);
+    }
+
+    private AccountDTO getLoginUser(HttpServletRequest request) {
+        Object obj = request.getSession().getAttribute(AppConstants.SESSION_LOGIN_USER);
+        if (obj instanceof AccountDTO) {
+            return (AccountDTO) obj;
+        }
+        return null;
+    }
+
+    private boolean isAdmin(AccountDTO account) {
+        return account != null && "ADMIN".equalsIgnoreCase(trim(account.getRole()));
+    }
+
+    private boolean isStaff(AccountDTO account) {
+        return account != null && "STAFF".equalsIgnoreCase(trim(account.getRole()));
+    }
+
+    private void redirectByRole(HttpServletResponse response, AccountDTO loginUser) throws IOException {
+        if (isAdmin(loginUser)) {
+            response.sendRedirect(AppConstants.MAIN_CONTROLLER + "?action=" + AppConstants.ACTION_LIST_ACCOUNT);
+        } else if (isStaff(loginUser)) {
+            response.sendRedirect(AppConstants.MAIN_CONTROLLER + "?action=" + AppConstants.ACTION_LIST_PRODUCT);
+        } else {
+            response.sendRedirect(AppConstants.MAIN_CONTROLLER + "?action=" + AppConstants.ACTION_SHOW_SHOP);
+        }
+    }
+
+    private static String trim(String value) {
+        return value == null ? "" : value.trim();
     }
 
     @Override
