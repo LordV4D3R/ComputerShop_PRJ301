@@ -1,50 +1,116 @@
-/* --- Form Style cho Dashboard --- */
-.form-container {
-    background: #fff;
-    padding: 25px;
-    border-radius: 8px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-    max-width: 900px; /* Giới hạn độ rộng form cho dễ nhìn */
-    border: 1px solid #eee;
+@charset "UTF-8";
+
+:root {
+    --primary: #1976d2;
+    --primary-hover: #1565c0;
+    --danger: #d32f2f;
+    --bg-color: #f4f6f8;
+    --border-color: #e0e0e0;
 }
 
-.form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
+body { 
+    background: var(--bg-color); 
+    font-family: 'Segoe UI', Arial, sans-serif; 
+    margin: 0; 
 }
 
-@media (max-width: 768px) {
-    .form-grid { grid-template-columns: 1fr; }
+/* --- 1. Layout Tổng (Sidebar & Main Content) --- */
+.dashboard-wrapper { display: flex; min-height: 100vh; }
+
+.sidebar { 
+    width: 250px; 
+    background: #fff; 
+    border-right: 1px solid var(--border-color); 
+    box-shadow: 2px 0 10px rgba(0,0,0,0.03);
+    display: flex; flex-direction: column; 
+    position: sticky; top: 0; height: 100vh; 
+}
+.sidebar-header { 
+    padding: 20px; background: var(--primary); 
+    color: white; font-size: 20px; font-weight: bold; text-align: center; 
+}
+.sidebar-header a { color: white; text-decoration: none; }
+
+.sidebar-menu { list-style: none; padding: 0; margin: 0; flex: 1; }
+.sidebar-menu li a { 
+    display: block; padding: 15px 25px; color: #444; 
+    text-decoration: none; border-bottom: 1px solid #f9f9f9; 
+    font-weight: 500; transition: all 0.2s ease; 
+}
+.sidebar-menu li a:hover { 
+    background: #e3f2fd; color: var(--primary); 
+    padding-left: 30px; border-left: 4px solid var(--primary); 
 }
 
-.form-group.full-width {
-    grid-column: 1 / -1;
+.main-content { flex: 1; padding: 30px; overflow-x: auto; }
+.page-title { 
+    margin-top: 0; font-size: 24px; color: #222; 
+    margin-bottom: 25px; font-weight: 600; 
 }
 
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: #444;
+/* --- 2. Bảng Dữ Liệu (Table) --- */
+.table-wrapper { 
+    background: #fff; border-radius: 10px; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+    border: 1px solid var(--border-color); overflow: hidden; 
 }
-
-.form-group input, 
-.form-group select, 
-.form-group textarea {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    font-family: inherit;
+.data-table { width: 100%; border-collapse: collapse; text-align: left; }
+.data-table th, .data-table td { 
+    padding: 15px 20px; border-bottom: 1px solid var(--border-color); 
+    vertical-align: middle; 
 }
+.data-table th { 
+    background: #fafafa; font-weight: 600; color: #555; 
+    text-transform: uppercase; font-size: 13px; 
+}
+.data-table tbody tr { transition: background 0.2s; }
+.data-table tbody tr:hover { background: #f9fbff; }
 
-.form-actions {
-    grid-column: 1 / -1;
-    display: flex;
-    gap: 15px;
-    margin-top: 15px;
-    border-top: 1px solid #eee;
-    padding-top: 20px;
+/* Status Badges cho Table */
+.status-badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; }
+.status-pending { background: #fff3cd; color: #856404; }
+.status-approved { background: #d4edda; color: #155724; }
+.status-cancelled { background: #f8d7da; color: #721c24; }
+
+/* --- 3. Nút Bấm (Buttons) --- */
+.btn { 
+    display: inline-block; padding: 10px 20px; border-radius: 6px; 
+    font-weight: 600; text-align: center; cursor: pointer; border: none; 
+    transition: all 0.2s; text-decoration: none; 
+}
+.btn-primary { background: var(--primary); color: white; box-shadow: 0 2px 4px rgba(25,118,210,0.2); }
+.btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 8px rgba(25,118,210,0.3); }
+
+/* Nút nhỏ trong bảng */
+.btn-sm { 
+    padding: 8px 14px; font-size: 13px; border-radius: 5px; 
+    font-weight: 600; text-decoration: none; display: inline-block; 
+    transition: all 0.2s; margin-right: 5px;
+}
+.btn-view { background: #e3f2fd; color: var(--primary); }
+.btn-view:hover { background: var(--primary); color: white; }
+.btn-cancel { background: #ffebee; color: var(--danger); }
+.btn-cancel:hover { background: var(--danger); color: white; }
+
+/* --- 4. Form Nhập Liệu --- */
+.form-container { 
+    background: #fff; padding: 30px; border-radius: 10px; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+    border: 1px solid var(--border-color); max-width: 1000px; 
+}
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.form-group.full-width { grid-column: 1 / -1; }
+.form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; font-size: 14px; }
+.form-group input, .form-group select, .form-group textarea { 
+    width: 100%; padding: 12px 15px; border: 1px solid #ced4da; 
+    border-radius: 6px; font-family: inherit; font-size: 14px; 
+    transition: all 0.2s; outline: none; box-sizing: border-box;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { 
+    border-color: var(--primary); 
+    box-shadow: 0 0 0 3px rgba(25,118,210,0.1); 
+}
+.form-actions { 
+    grid-column: 1 / -1; display: flex; gap: 15px; 
+    margin-top: 10px; border-top: 1px solid #eee; padding-top: 25px; 
 }

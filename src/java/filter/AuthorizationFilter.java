@@ -98,8 +98,8 @@ public class AuthorizationFilter implements Filter {
             throws IOException, ServletException {
         req.setCharacterEncoding("UTF-8");
         res.setCharacterEncoding("UTF-8");
-        res.setContentType("text/html; charset=UTF-8");
-        
+//        res.setContentType("text/html; charset=UTF-8");
+
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
 
@@ -118,6 +118,7 @@ public class AuthorizationFilter implements Filter {
             chain.doFilter(req, res);
             return;
         }
+        res.setContentType("text/html; charset=UTF-8");
 
         if (isAdminView(path)) {
             if (isAdmin(loginUser)) {
