@@ -4,7 +4,10 @@ import dao.ProductDAO;
 import dto.CartItemViewDTO;
 import dto.ProductDTO;
 import utils.AppConstants;
-
+import dto.CategoryDTO;
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import utils.JPAUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -155,6 +158,8 @@ public class ProductController extends HttpServlet {
                 return;
 
             } else if (AppConstants.ACTION_SHOW_CREATE_PRODUCT.equals(action)) {
+                List<CategoryDTO> listCategory = getAllCategories();
+                request.setAttribute("listCategory", listCategory);
                 url = AppConstants.PRODUCT_CREATE_PAGE;
 
             } else if (AppConstants.ACTION_INSERT_PRODUCT.equals(action)) {
@@ -194,6 +199,8 @@ public class ProductController extends HttpServlet {
                     request.setAttribute("listProduct", listProduct);
                     url = AppConstants.PRODUCT_LIST_PAGE;
                 } else {
+                    List<CategoryDTO> listCategory = getAllCategories();
+                    request.setAttribute("listCategory", listCategory);
                     request.setAttribute("product", product);
                     url = AppConstants.PRODUCT_EDIT_PAGE;
                 }
@@ -373,6 +380,17 @@ public class ProductController extends HttpServlet {
         cartCookie.setMaxAge(7 * 24 * 60 * 60);
         cartCookie.setPath(request.getContextPath());
         response.addCookie(cartCookie);
+    }
+
+    private List<CategoryDTO> getAllCategories() {
+        EntityManager em = JPAUtils.getEntityManager();
+        try {
+            String jpql = "SELECT c FROM CategoryDTO c WHERE c.isDeleted = false ORDER BY c.name ASC";
+            TypedQuery<CategoryDTO> query = em.createQuery(jpql, CategoryDTO.class);
+            return query.getResultList();
+        } finally {
+            em.close();
+        }
     }
 
     @Override

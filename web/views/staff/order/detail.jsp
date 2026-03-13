@@ -6,249 +6,97 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Chi tiết đơn hàng</title>
-    <link rel="stylesheet" type="text/css"
-          href="${pageContext.request.contextPath}/assets/css/main.css">
-
-    <style>
-        .detail-wrapper {
-            width: 95%;
-            max-width: 1200px;
-            margin: 30px auto;
-        }
-
-        .detail-box {
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .detail-title {
-            margin-top: 0;
-            margin-bottom: 16px;
-            font-size: 24px;
-            color: #222;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(250px, 1fr));
-            gap: 12px 24px;
-        }
-
-        .info-item strong {
-            color: #333;
-        }
-
-        .badge-pending {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 20px;
-            background: #fff3cd;
-            color: #856404;
-            font-weight: bold;
-            font-size: 13px;
-        }
-
-        .badge-approved {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 20px;
-            background: #d4edda;
-            color: #155724;
-            font-weight: bold;
-            font-size: 13px;
-        }
-
-        .badge-cancelled {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 20px;
-            background: #f8d7da;
-            color: #721c24;
-            font-weight: bold;
-            font-size: 13px;
-        }
-
-        .action-row {
-            margin-top: 16px;
-        }
-
-        .btn-back,
-        .btn-approve,
-        .btn-cancel-order {
-            display: inline-block;
-            padding: 10px 14px;
-            border-radius: 6px;
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-            margin-right: 8px;
-        }
-
-        .btn-back {
-            background: #6c757d;
-        }
-
-        .btn-approve {
-            background: #2e7d32;
-        }
-
-        .btn-cancel-order {
-            background: #d32f2f;
-        }
-
-        .item-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #fff;
-        }
-
-        .item-table th,
-        .item-table td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            vertical-align: middle;
-            text-align: center;
-        }
-
-        .item-table th {
-            background: #f5f5f5;
-        }
-
-        .product-cell {
-            text-align: left;
-        }
-
-        .product-name {
-            font-weight: bold;
-            margin-bottom: 4px;
-        }
-
-        .product-id {
-            color: #777;
-            font-size: 13px;
-        }
-    </style>
+    <title>Chi tiết đơn hàng | Staff</title>
+    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/css/main.css">
+    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/css/dashboard.css">
 </head>
 <body>
 
-    <div class="detail-wrapper">
+    <div class="dashboard-wrapper">
+        <jsp:include page="/includes/sidebar_staff.jsp" />
 
-        <div class="detail-box">
-            <h2 class="detail-title">Chi tiết đơn hàng</h2>
+        <div class="main-content">
+            <h2 class="page-title">Chi tiết đơn hàng: <span style="color: #1976d2;">#${order.id}</span></h2>
 
-            <div class="info-grid">
-                <div class="info-item"><strong>Mã đơn:</strong> ${order.id}</div>
-                <div class="info-item">
-                    <strong>Trạng thái:</strong>
-                    <c:choose>
-                        <c:when test="${order.status eq 'PENDING'}">
-                            <span class="badge-pending">PENDING</span>
-                        </c:when>
-                        <c:when test="${order.status eq 'APPROVED'}">
-                            <span class="badge-approved">APPROVED</span>
-                        </c:when>
-                        <c:when test="${order.status eq 'CANCELLED'}">
-                            <span class="badge-cancelled">CANCELLED</span>
-                        </c:when>
-                        <c:otherwise>
-                            ${order.status}
-                        </c:otherwise>
-                    </c:choose>
+            <div class="form-container" style="margin-bottom: 20px;">
+                <h3 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Thông tin khách hàng</h3>
+                <div class="form-grid">
+                    <div><strong>Trạng thái:</strong> 
+                        <c:choose>
+                            <c:when test="${order.status eq 'PENDING'}"><span class="status-badge status-pending">PENDING</span></c:when>
+                            <c:when test="${order.status eq 'APPROVED'}"><span class="status-badge status-approved">APPROVED</span></c:when>
+                            <c:when test="${order.status eq 'CANCELLED'}"><span class="status-badge status-cancelled">CANCELLED</span></c:when>
+                            <c:otherwise>${order.status}</c:otherwise>
+                        </c:choose>
+                    </div>
+                    <div><strong>Khách hàng:</strong> ${order.fullname}</div>
+                    <div><strong>Số điện thoại:</strong> ${order.phoneNumber}</div>
+                    <div><strong>Email:</strong> ${order.email}</div>
+                    <div style="grid-column: 1 / -1;"><strong>Tổng tiền:</strong> <span style="color: #d70018; font-weight: bold; font-size: 18px;"><fmt:formatNumber value="${order.totalPrice}" type="number" pattern="#,##0"/> đ</span></div>
+                    <div style="grid-column: 1 / -1;"><strong>Địa chỉ:</strong> ${order.address}</div>
                 </div>
 
-                <div class="info-item"><strong>Khách hàng:</strong> ${order.fullname}</div>
-                <div class="info-item"><strong>Số điện thoại:</strong> ${order.phoneNumber}</div>
-                <div class="info-item"><strong>Email:</strong> ${order.email}</div>
-                <div class="info-item"><strong>Tổng tiền:</strong> <fmt:formatNumber value="${order.totalPrice}" type="number" pattern="#,##0"/> đ</div>
-                <div class="info-item" style="grid-column: 1 / -1;"><strong>Địa chỉ:</strong> ${order.address}</div>
+                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;">
+                    <a class="btn" style="background: #6c757d; color: white;" href="${pageContext.request.contextPath}/MainController?action=listOrder">Quay lại</a>
+                    <c:if test="${order.status eq 'PENDING'}">
+                        <a class="btn" style="background: #28a745; color: white; margin-left: 10px;" 
+                           href="${pageContext.request.contextPath}/MainController?action=approveOrder&id=${order.id}"
+                           onclick="return confirm('Duyệt đơn hàng này?');">Duyệt Đơn (Approve)</a>
+                        <a class="btn" style="background: #dc3545; color: white; margin-left: 10px;" 
+                           href="${pageContext.request.contextPath}/MainController?action=cancelOrder&id=${order.id}"
+                           onclick="return confirm('Hủy đơn hàng này?');">Hủy Đơn (Cancel)</a>
+                    </c:if>
+                </div>
             </div>
 
-            <div class="action-row">
-                <a class="btn-back"
-                   href="${pageContext.request.contextPath}/MainController?action=listOrder">
-                    Quay lại
-                </a>
-
-                <c:if test="${order.status eq 'PENDING'}">
-                    <a class="btn-approve"
-                       href="${pageContext.request.contextPath}/MainController?action=approveOrder&id=${order.id}"
-                       onclick="return confirm('Duyệt đơn hàng này?');">
-                        Approve
-                    </a>
-
-                    <a class="btn-cancel-order"
-                       href="${pageContext.request.contextPath}/MainController?action=cancelOrder&id=${order.id}"
-                       onclick="return confirm('Hủy đơn hàng này?');">
-                        Cancel
-                    </a>
-                </c:if>
-            </div>
-        </div>
-
-        <div class="detail-box">
-            <h2 class="detail-title">Danh sách sản phẩm trong đơn</h2>
-
-            <table class="item-table">
-                <thead>
-                    <tr>
-                        <th>Ảnh</th>
-                        <th>Sản phẩm</th>
-                        <th>Đơn giá</th>
-                        <th>Số lượng</th>
-                        <th>Thành tiền</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <c:choose>
-                        <c:when test="${not empty orderItemViews}">
-                            <c:forEach var="item" items="${orderItemViews}">
+            <h3 style="margin-bottom: 15px; color: #333;">Sản phẩm trong đơn</h3>
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 100px; text-align: center;">Ảnh</th>
+                            <th>Sản phẩm</th>
+                            <th>Đơn giá</th>
+                            <th style="text-align: center;">Số lượng</th>
+                            <th>Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:choose>
+                            <c:when test="${not empty orderItemViews}">
+                                <c:forEach var="item" items="${orderItemViews}">
+                                    <tr>
+                                        <td style="text-align: center;">
+                                            <c:choose>
+                                                <c:when test="${not empty item.imageUrl}">
+                                                    <img src="${pageContext.request.contextPath}/${item.imageUrl}" alt="${item.productName}" width="60" style="border-radius: 4px; object-fit: contain;">
+                                                </c:when>
+                                                <c:otherwise><span style="color:#999; font-size:12px;">No Image</span></c:otherwise>
+                                            </c:choose>
+                                        </td>
+                                        <td>
+                                            <strong>${item.productName}</strong><br>
+                                            <span style="color:#777; font-size:12px;">Mã SP: ${item.productId}</span>
+                                        </td>
+                                        <td><fmt:formatNumber value="${item.price}" type="number" pattern="#,##0"/> đ</td>
+                                        <td style="text-align: center; font-weight: bold;">${item.quantity}</td>
+                                        <td style="color: #d70018; font-weight: bold;">
+                                            <fmt:formatNumber value="${item.subtotal}" type="number" pattern="#,##0"/> đ
+                                        </td>
+                                    </tr>
+                                </c:forEach>
+                            </c:when>
+                            <c:otherwise>
                                 <tr>
-                                    <td>
-                                        <c:choose>
-                                            <c:when test="${not empty item.imageUrl}">
-                                                <img src="${pageContext.request.contextPath}/${item.imageUrl}"
-                                                     alt="${item.productName}" width="80">
-                                            </c:when>
-                                            <c:otherwise>
-                                                Không có ảnh
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </td>
-
-                                    <td class="product-cell">
-                                        <div class="product-name">${item.productName}</div>
-                                        <div class="product-id">Product ID: ${item.productId}</div>
-                                    </td>
-
-                                    <td>
-                                        <fmt:formatNumber value="${item.price}" type="number" pattern="#,##0"/> đ
-                                    </td>
-
-                                    <td>${item.quantity}</td>
-
-                                    <td>
-                                        <fmt:formatNumber value="${item.subtotal}" type="number" pattern="#,##0"/> đ
-                                    </td>
+                                    <td colspan="5" style="text-align:center; padding:30px; color:#777;">Đơn hàng này chưa có sản phẩm.</td>
                                 </tr>
-                            </c:forEach>
-                        </c:when>
+                            </c:otherwise>
+                        </c:choose>
+                    </tbody>
+                </table>
+            </div>
 
-                        <c:otherwise>
-                            <tr>
-                                <td colspan="5" style="text-align:center; padding:30px; color:#777;">
-                                    Đơn hàng này chưa có sản phẩm.
-                                </td>
-                            </tr>
-                        </c:otherwise>
-                    </c:choose>
-                </tbody>
-            </table>
         </div>
-
     </div>
 
 </body>
