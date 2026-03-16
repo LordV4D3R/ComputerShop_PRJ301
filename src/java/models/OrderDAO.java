@@ -1,8 +1,5 @@
-package dao;
+package models;
 
-import dto.OrderDTO;
-import dto.OrderItemDTO;
-import dto.ProductDTO;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;

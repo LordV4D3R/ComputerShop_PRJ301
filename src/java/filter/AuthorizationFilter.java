@@ -1,6 +1,6 @@
 package filter;
 
-import dto.AccountDTO;
+import models.AccountDTO;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;

@@ -1,6 +1,5 @@
-package dao;
+package models;
 
-import dto.CategoryDTO;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;

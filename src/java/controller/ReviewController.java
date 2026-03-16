@@ -1,11 +1,11 @@
 package controller;
 
-import dao.AccountDAO;
-import dao.ProductDAO;
-import dao.ReviewDAO;
-import dto.AccountDTO;
-import dto.ProductDTO;
-import dto.ReviewDTO;
+import models.AccountDAO;
+import models.ProductDAO;
+import models.ReviewDAO;
+import models.AccountDTO;
+import models.ProductDTO;
+import models.ReviewDTO;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.ServletException;

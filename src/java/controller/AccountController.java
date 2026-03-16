@@ -1,7 +1,7 @@
 package controller;
 
-import dao.AccountDAO;
-import dto.AccountDTO;
+import models.AccountDAO;
+import models.AccountDTO;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.ServletException;

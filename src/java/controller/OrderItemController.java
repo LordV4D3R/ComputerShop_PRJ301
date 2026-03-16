@@ -1,11 +1,11 @@
 package controller;
 
-import dao.OrderDAO;
-import dao.OrderItemDAO;
-import dao.ProductDAO;
-import dto.OrderDTO;
-import dto.OrderItemDTO;
-import dto.ProductDTO;
+import models.OrderDAO;
+import models.OrderItemDAO;
+import models.ProductDAO;
+import models.OrderDTO;
+import models.OrderItemDTO;
+import models.ProductDTO;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.ServletException;

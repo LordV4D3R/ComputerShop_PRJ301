@@ -1,7 +1,7 @@
 package controller;
 
-import dao.CategoryDAO;
-import dto.CategoryDTO;
+import models.CategoryDAO;
+import models.CategoryDTO;
 import utils.AppConstants;
 
 import java.io.IOException;

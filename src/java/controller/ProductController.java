@@ -1,10 +1,10 @@
 package controller;
 
-import dao.ProductDAO;
-import dto.CartItemViewDTO;
-import dto.ProductDTO;
+import models.ProductDAO;
+import models.CartItemViewDTO;
+import models.ProductDTO;
 import utils.AppConstants;
-import dto.CategoryDTO;
+import models.CategoryDTO;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import utils.JPAUtils;

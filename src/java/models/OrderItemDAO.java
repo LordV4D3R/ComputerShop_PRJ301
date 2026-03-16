@@ -1,18 +1,17 @@
-package dao;
+package models;
 
-import dto.ReviewDTO;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import utils.JPAUtils;
 
-public class ReviewDAO {
+public class OrderItemDAO {
 
-    public boolean create(ReviewDTO review) {
+    public boolean create(OrderItemDTO item) {
         EntityManager em = JPAUtils.getEntityManager();
         try {
             em.getTransaction().begin();
-            em.persist(review);
+            em.persist(item);
             em.getTransaction().commit();
             return true;
         } catch (Exception e) {
@@ -26,25 +25,37 @@ public class ReviewDAO {
         }
     }
 
-    public List<ReviewDTO> getAllReviews() {
+    public List<OrderItemDTO> getAllOrderItems() {
         EntityManager em = JPAUtils.getEntityManager();
         try {
-            String jpql = "SELECT r FROM ReviewDTO r "
-                    + "WHERE r.isDeleted = false "
-                    + "ORDER BY r.createdAt DESC";
-            TypedQuery<ReviewDTO> query = em.createQuery(jpql, ReviewDTO.class);
+            String jpql = "SELECT oi FROM OrderItemDTO oi "
+                    + "WHERE oi.isDeleted = false";
+            TypedQuery<OrderItemDTO> query = em.createQuery(jpql, OrderItemDTO.class);
             return query.getResultList();
         } finally {
             em.close();
         }
     }
 
-    public ReviewDTO getReviewById(String id) {
+    public List<OrderItemDTO> getOrderItemsByOrderId(String orderId) {
         EntityManager em = JPAUtils.getEntityManager();
         try {
-            ReviewDTO review = em.find(ReviewDTO.class, id);
-            if (review != null && !review.isIsDeleted()) {
-                return review;
+            String jpql = "SELECT oi FROM OrderItemDTO oi "
+                    + "WHERE oi.orderId = :orderId AND oi.isDeleted = false";
+            TypedQuery<OrderItemDTO> query = em.createQuery(jpql, OrderItemDTO.class);
+            query.setParameter("orderId", orderId);
+            return query.getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public OrderItemDTO getOrderItemById(String id) {
+        EntityManager em = JPAUtils.getEntityManager();
+        try {
+            OrderItemDTO item = em.find(OrderItemDTO.class, id);
+            if (item != null && !item.isIsDeleted()) {
+                return item;
             }
             return null;
         } finally {
@@ -52,11 +63,11 @@ public class ReviewDAO {
         }
     }
 
-    public boolean update(ReviewDTO review) {
+    public boolean update(OrderItemDTO item) {
         EntityManager em = JPAUtils.getEntityManager();
         try {
             em.getTransaction().begin();
-            em.merge(review);
+            em.merge(item);
             em.getTransaction().commit();
             return true;
         } catch (Exception e) {
@@ -74,10 +85,10 @@ public class ReviewDAO {
         EntityManager em = JPAUtils.getEntityManager();
         try {
             em.getTransaction().begin();
-            ReviewDTO review = em.find(ReviewDTO.class, id);
-            if (review != null) {
-                review.setIsDeleted(true);
-                em.merge(review);
+            OrderItemDTO item = em.find(OrderItemDTO.class, id);
+            if (item != null) {
+                item.setIsDeleted(true);
+                em.merge(item);
             }
             em.getTransaction().commit();
             return true;

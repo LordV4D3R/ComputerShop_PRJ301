@@ -1,6 +1,7 @@
-package dto;
+package models;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,23 +10,20 @@ import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "order_items")
-public class OrderItemDTO implements Serializable {
+@Table(name = "wishlist")
+public class WishlistDTO implements Serializable {
 
     @Id
     private String id;
 
-    @Column(name = "order_id", nullable = false)
-    private String orderId;
+    @Column(name = "account_id", nullable = false)
+    private String accountId;
 
     @Column(name = "product_id", nullable = false)
     private String productId;
 
-    @Column(name = "quantity")
-    private int quantity;
-
-    @Column(name = "price")
-    private double price;
+    @Column(name = "created_at")
+    private Timestamp createdAt;
 
     @Column(name = "is_deleted")
     private boolean isDeleted;
@@ -35,17 +33,18 @@ public class OrderItemDTO implements Serializable {
         if (this.id == null || this.id.trim().isEmpty()) {
             this.id = UUID.randomUUID().toString();
         }
+        if (this.createdAt == null) {
+            this.createdAt = new Timestamp(System.currentTimeMillis());
+        }
         this.isDeleted = false;
     }
 
-    public OrderItemDTO() {
+    public WishlistDTO() {
     }
 
-    public OrderItemDTO(String orderId, String productId, int quantity, double price) {
-        this.orderId = orderId;
+    public WishlistDTO(String accountId, String productId) {
+        this.accountId = accountId;
         this.productId = productId;
-        this.quantity = quantity;
-        this.price = price;
     }
 
     public String getId() {
@@ -56,12 +55,12 @@ public class OrderItemDTO implements Serializable {
         this.id = id;
     }
 
-    public String getOrderId() {
-        return orderId;
+    public String getAccountId() {
+        return accountId;
     }
 
-    public void setOrderId(String orderId) {
-        this.orderId = orderId;
+    public void setAccountId(String accountId) {
+        this.accountId = accountId;
     }
 
     public String getProductId() {
@@ -72,20 +71,12 @@ public class OrderItemDTO implements Serializable {
         this.productId = productId;
     }
 
-    public int getQuantity() {
-        return quantity;
+    public Timestamp getCreatedAt() {
+        return createdAt;
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }    
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
     }
 
     public boolean isIsDeleted() {

@@ -1,18 +1,17 @@
-package dao;
+package models;
 
-import dto.OrderItemDTO;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import utils.JPAUtils;
 
-public class OrderItemDAO {
+public class WishlistDAO {
 
-    public boolean create(OrderItemDTO item) {
+    public boolean create(WishlistDTO wishlist) {
         EntityManager em = JPAUtils.getEntityManager();
         try {
             em.getTransaction().begin();
-            em.persist(item);
+            em.persist(wishlist);
             em.getTransaction().commit();
             return true;
         } catch (Exception e) {
@@ -26,37 +25,25 @@ public class OrderItemDAO {
         }
     }
 
-    public List<OrderItemDTO> getAllOrderItems() {
+    public List<WishlistDTO> getAllWishlists() {
         EntityManager em = JPAUtils.getEntityManager();
         try {
-            String jpql = "SELECT oi FROM OrderItemDTO oi "
-                    + "WHERE oi.isDeleted = false";
-            TypedQuery<OrderItemDTO> query = em.createQuery(jpql, OrderItemDTO.class);
+            String jpql = "SELECT w FROM WishlistDTO w "
+                    + "WHERE w.isDeleted = false "
+                    + "ORDER BY w.createdAt DESC";
+            TypedQuery<WishlistDTO> query = em.createQuery(jpql, WishlistDTO.class);
             return query.getResultList();
         } finally {
             em.close();
         }
     }
 
-    public List<OrderItemDTO> getOrderItemsByOrderId(String orderId) {
+    public WishlistDTO getWishlistById(String id) {
         EntityManager em = JPAUtils.getEntityManager();
         try {
-            String jpql = "SELECT oi FROM OrderItemDTO oi "
-                    + "WHERE oi.orderId = :orderId AND oi.isDeleted = false";
-            TypedQuery<OrderItemDTO> query = em.createQuery(jpql, OrderItemDTO.class);
-            query.setParameter("orderId", orderId);
-            return query.getResultList();
-        } finally {
-            em.close();
-        }
-    }
-
-    public OrderItemDTO getOrderItemById(String id) {
-        EntityManager em = JPAUtils.getEntityManager();
-        try {
-            OrderItemDTO item = em.find(OrderItemDTO.class, id);
-            if (item != null && !item.isIsDeleted()) {
-                return item;
+            WishlistDTO wishlist = em.find(WishlistDTO.class, id);
+            if (wishlist != null && !wishlist.isIsDeleted()) {
+                return wishlist;
             }
             return null;
         } finally {
@@ -64,11 +51,11 @@ public class OrderItemDAO {
         }
     }
 
-    public boolean update(OrderItemDTO item) {
+    public boolean update(WishlistDTO wishlist) {
         EntityManager em = JPAUtils.getEntityManager();
         try {
             em.getTransaction().begin();
-            em.merge(item);
+            em.merge(wishlist);
             em.getTransaction().commit();
             return true;
         } catch (Exception e) {
@@ -86,10 +73,10 @@ public class OrderItemDAO {
         EntityManager em = JPAUtils.getEntityManager();
         try {
             em.getTransaction().begin();
-            OrderItemDTO item = em.find(OrderItemDTO.class, id);
-            if (item != null) {
-                item.setIsDeleted(true);
-                em.merge(item);
+            WishlistDTO wishlist = em.find(WishlistDTO.class, id);
+            if (wishlist != null) {
+                wishlist.setIsDeleted(true);
+                em.merge(wishlist);
             }
             em.getTransaction().commit();
             return true;

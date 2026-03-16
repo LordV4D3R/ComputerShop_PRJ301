@@ -1,18 +1,17 @@
-package dao;
+package models;
 
-import dto.WishlistDTO;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import utils.JPAUtils;
 
-public class WishlistDAO {
+public class ReviewDAO {
 
-    public boolean create(WishlistDTO wishlist) {
+    public boolean create(ReviewDTO review) {
         EntityManager em = JPAUtils.getEntityManager();
         try {
             em.getTransaction().begin();
-            em.persist(wishlist);
+            em.persist(review);
             em.getTransaction().commit();
             return true;
         } catch (Exception e) {
@@ -26,25 +25,25 @@ public class WishlistDAO {
         }
     }
 
-    public List<WishlistDTO> getAllWishlists() {
+    public List<ReviewDTO> getAllReviews() {
         EntityManager em = JPAUtils.getEntityManager();
         try {
-            String jpql = "SELECT w FROM WishlistDTO w "
-                    + "WHERE w.isDeleted = false "
-                    + "ORDER BY w.createdAt DESC";
-            TypedQuery<WishlistDTO> query = em.createQuery(jpql, WishlistDTO.class);
+            String jpql = "SELECT r FROM ReviewDTO r "
+                    + "WHERE r.isDeleted = false "
+                    + "ORDER BY r.createdAt DESC";
+            TypedQuery<ReviewDTO> query = em.createQuery(jpql, ReviewDTO.class);
             return query.getResultList();
         } finally {
             em.close();
         }
     }
 
-    public WishlistDTO getWishlistById(String id) {
+    public ReviewDTO getReviewById(String id) {
         EntityManager em = JPAUtils.getEntityManager();
         try {
-            WishlistDTO wishlist = em.find(WishlistDTO.class, id);
-            if (wishlist != null && !wishlist.isIsDeleted()) {
-                return wishlist;
+            ReviewDTO review = em.find(ReviewDTO.class, id);
+            if (review != null && !review.isIsDeleted()) {
+                return review;
             }
             return null;
         } finally {
@@ -52,11 +51,11 @@ public class WishlistDAO {
         }
     }
 
-    public boolean update(WishlistDTO wishlist) {
+    public boolean update(ReviewDTO review) {
         EntityManager em = JPAUtils.getEntityManager();
         try {
             em.getTransaction().begin();
-            em.merge(wishlist);
+            em.merge(review);
             em.getTransaction().commit();
             return true;
         } catch (Exception e) {
@@ -74,10 +73,10 @@ public class WishlistDAO {
         EntityManager em = JPAUtils.getEntityManager();
         try {
             em.getTransaction().begin();
-            WishlistDTO wishlist = em.find(WishlistDTO.class, id);
-            if (wishlist != null) {
-                wishlist.setIsDeleted(true);
-                em.merge(wishlist);
+            ReviewDTO review = em.find(ReviewDTO.class, id);
+            if (review != null) {
+                review.setIsDeleted(true);
+                em.merge(review);
             }
             em.getTransaction().commit();
             return true;
