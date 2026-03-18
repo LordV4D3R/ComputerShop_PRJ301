@@ -4,10 +4,16 @@ import utils.AppConstants;
 
 import java.io.IOException;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+@MultipartConfig(
+    fileSizeThreshold = 1024 * 1024 * 2, // 2MB
+    maxFileSize = 1024 * 1024 * 10,      // 10MB
+    maxRequestSize = 1024 * 1024 * 50    // 50MB
+)
 public class MainController extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
@@ -24,9 +30,9 @@ public class MainController extends HttpServlet {
 
         try {
             if (AppConstants.ACTION_SHOW_HOME.equals(action)) {
-                url = AppConstants.HOME_PAGE;
+                url = AppConstants.PRODUCT_CONTROLLER;
             } else if (AppConstants.ACTION_SHOW_SHOP.equals(action)) {
-                url = "ProductController";
+                url = AppConstants.PRODUCT_CONTROLLER;
             } else if (AppConstants.ACTION_SHOW_LOGIN.equals(action)
                     || AppConstants.ACTION_LOGIN.equals(action)
                     || AppConstants.ACTION_LOGOUT.equals(action)
@@ -37,7 +43,9 @@ public class MainController extends HttpServlet {
                     || AppConstants.ACTION_INSERT_ACCOUNT.equals(action)
                     || AppConstants.ACTION_DELETE_ACCOUNT.equals(action)
                     || AppConstants.ACTION_EDIT_ACCOUNT.equals(action)
-                    || AppConstants.ACTION_UPDATE_ACCOUNT.equals(action)) {
+                    || AppConstants.ACTION_UPDATE_ACCOUNT.equals(action)
+                    || AppConstants.ACTION_SHOW_ACCOUNT.equals(action)
+                    || AppConstants.ACTION_UPDATE_PROFILE.equals(action)) {
 
                 url = AppConstants.ACCOUNT_CONTROLLER;
 
@@ -76,6 +84,7 @@ public class MainController extends HttpServlet {
                     || AppConstants.ACTION_CANCEL_ORDER.equals(action)
                     || AppConstants.ACTION_SHOW_CHECKOUT.equals(action)
                     || AppConstants.ACTION_PLACE_ORDER_FROM_CART.equals(action)
+                    || AppConstants.ACTION_SHOW_QR_PAYMENT.equals(action)
                     || AppConstants.ACTION_LIST_MY_ORDER.equals(action)
                     || AppConstants.ACTION_SHOW_MY_ORDER_DETAIL.equals(action)) {
                 url = "OrderController";

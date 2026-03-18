@@ -5,12 +5,22 @@ import models.AccountDTO;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import utils.AppConstants;
 import utils.PasswordUtils;
+import javax.servlet.http.Part;
+import java.io.File;
+import java.util.UUID;
+import java.nio.file.Paths;
 
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024 * 2, // 2MB
+        maxFileSize = 1024 * 1024 * 10, // Tối đa 10MB
+        maxRequestSize = 1024 * 1024 * 50 // Tối đa 50MB
+)
 public class AccountController extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
@@ -115,6 +125,64 @@ public class AccountController extends HttpServlet {
                     }
                 }
 
+            } else if (AppConstants.ACTION_SHOW_ACCOUNT.equals(action)) {
+                AccountDTO currentUser = getLoginUser(request);
+                if (currentUser == null) {
+                    response.sendRedirect(AppConstants.MAIN_CONTROLLER + "?action=" + AppConstants.ACTION_SHOW_LOGIN);
+                    return;
+                }
+                url = "profile.jsp";
+
+            } else if (AppConstants.ACTION_UPDATE_PROFILE.equals(action)) {
+                AccountDTO currentUser = getLoginUser(request);
+                if (currentUser == null) {
+                    response.sendRedirect(AppConstants.MAIN_CONTROLLER + "?action=" + AppConstants.ACTION_SHOW_LOGIN);
+                    return;
+                }
+
+                String fullname = trim(request.getParameter("fullname"));
+                String email = trim(request.getParameter("email"));
+                String phoneNumber = trim(request.getParameter("phoneNumber"));
+                String address = trim(request.getParameter("address"));
+                String newPassword = trim(request.getParameter("newPassword"));
+
+                Part filePart = request.getPart("avatarFile");
+                String imageUrl = currentUser.getImageUrl();
+
+                if (filePart != null && filePart.getSize() > 0) {
+                    String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+                    String uniqueFileName = UUID.randomUUID().toString() + "_" + fileName;
+
+                    String uploadPath = request.getServletContext().getRealPath("/images/users");
+                    File uploadDir = new File(uploadPath);
+                    if (!uploadDir.exists()) {
+                        uploadDir.mkdirs();
+                    }
+
+                    filePart.write(uploadPath + File.separator + uniqueFileName);
+                    imageUrl = "images/users/" + uniqueFileName;
+                }
+
+                // CẬP NHẬT THÔNG TIN
+                currentUser.setFullname(fullname);
+                currentUser.setEmail(email);
+                currentUser.setPhoneNumber(phoneNumber);
+                currentUser.setAddress(address);
+                currentUser.setImageUrl(imageUrl);
+
+                if (!newPassword.isEmpty()) {
+                    currentUser.setHashPassword(PasswordUtils.hashPassword(newPassword));
+                }
+
+                accountDAO.update(currentUser);
+                request.getSession().setAttribute(AppConstants.SESSION_LOGIN_USER, currentUser);
+                request.getSession().setAttribute("successMessage", "Cập nhật thông tin thành công!");
+
+                response.sendRedirect(AppConstants.MAIN_CONTROLLER + "?action=" + AppConstants.ACTION_SHOW_ACCOUNT);
+                return;
+                // ============ KẾT THÚC: PHẦN CẬP NHẬT THÔNG TIN CÁ NHÂN ============
+
+                // GIỮ NGUYÊN KHỐI ELSE DÀNH CHO ADMIN BÊN DƯỚI
             } else {
                 AccountDTO loginUser = getLoginUser(request);
                 if (!isAdmin(loginUser)) {
@@ -138,7 +206,7 @@ public class AccountController extends HttpServlet {
                     String phoneNumber = trim(request.getParameter("phoneNumber"));
                     String fullname = trim(request.getParameter("fullname"));
                     String email = trim(request.getParameter("email"));
-                    String role = trim(request.getParameter("role"));
+                    String role = normalizeRole(request.getParameter("role"));
                     String imageUrl = trim(request.getParameter("imageUrl"));
                     String status = trim(request.getParameter("status"));
 
@@ -192,7 +260,7 @@ public class AccountController extends HttpServlet {
                         account.setPhoneNumber(trim(request.getParameter("phoneNumber")));
                         account.setFullname(trim(request.getParameter("fullname")));
                         account.setEmail(trim(request.getParameter("email")));
-                        account.setRole(trim(request.getParameter("role")));
+                        account.setRole(normalizeRole(request.getParameter("role")));
                         account.setImageUrl(trim(request.getParameter("imageUrl")));
                         account.setStatus(trim(request.getParameter("status")));
 
@@ -254,6 +322,22 @@ public class AccountController extends HttpServlet {
 
     private static String trim(String value) {
         return value == null ? "" : value.trim();
+    }
+
+    private String normalizeRole(String role) {
+        String normalizedRole = trim(role).toUpperCase();
+
+        if ("USER".equals(normalizedRole)) {
+            return "CUSTOMER";
+        }
+
+        if (!"ADMIN".equals(normalizedRole)
+                && !"STAFF".equals(normalizedRole)
+                && !"CUSTOMER".equals(normalizedRole)) {
+            return "CUSTOMER";
+        }
+
+        return normalizedRole;
     }
 
     @Override

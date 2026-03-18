@@ -2,45 +2,53 @@ package utils;
 
 public class AppConstants {
 
+    // --- VIETQR CONFIG ---
+    public static final String VIETQR_BASE_URL = "https://img.vietqr.io/image/";
+    public static final String VIETQR_BANK_ID = "MBBANK";
+    public static final String VIETQR_ACCOUNT_NUMBER = "0915601343";
+    public static final String VIETQR_ACCOUNT_NAME = "TRAN QUOC AN";
+    public static final String VIETQR_TEMPLATE = "compact2";
+
     // --- VIEWS ---
     public static final String LOGIN_PAGE = "login.jsp";
     public static final String REGISTER_PAGE = "register.jsp";
-    public static final String HOME_PAGE = "views/client/home/home.jsp";
-    
-    public static final String CLIENT_SHOP_PAGE = "/views/client/shop/selectProduct.jsp";
-    public static final String CLIENT_CART_PAGE = "/views/client/shop/cart.jsp";
-    public static final String CLIENT_CHECKOUT_PAGE = "/views/client/order/checkout.jsp";
+    public static final String HOME_PAGE = "home.jsp";
 
-    public static final String PRODUCT_LIST_PAGE = "views/staff/product/list.jsp";
-    public static final String PRODUCT_CREATE_PAGE = "views/staff/product/create.jsp";
-    public static final String PRODUCT_EDIT_PAGE = "views/staff/product/edit.jsp";
+    public static final String CLIENT_SHOP_PAGE = "selectProduct.jsp";
+    public static final String CLIENT_CART_PAGE = "viewCart.jsp";
+    public static final String CLIENT_CHECKOUT_PAGE = "myCheckout.jsp";
+    public static final String CLIENT_QR_PAYMENT_PAGE = "qrPayment.jsp";
+    public static final String MY_ORDER_LIST_PAGE = "myOrderList.jsp";
+    public static final String MY_ORDER_DETAIL_PAGE = "myOrderDetail.jsp";
 
-    public static final String CATEGORY_LIST_PAGE = "views/staff/category/list.jsp";
-    public static final String CATEGORY_CREATE_PAGE = "views/staff/category/create.jsp";
-    public static final String CATEGORY_EDIT_PAGE = "views/staff/category/edit.jsp";
+    public static final String PRODUCT_LIST_PAGE = "listProduct.jsp";
+    public static final String PRODUCT_CREATE_PAGE = "createProduct.jsp";
+    public static final String PRODUCT_EDIT_PAGE = "editProduct.jsp";
 
-    public static final String ORDER_LIST_PAGE = "views/staff/order/list.jsp";
-    public static final String ORDER_CREATE_PAGE = "views/staff/order/create.jsp";
-    public static final String ORDER_EDIT_PAGE = "views/staff/order/edit.jsp";
+    public static final String CATEGORY_LIST_PAGE = "listCategory.jsp";
+    public static final String CATEGORY_CREATE_PAGE = "createCategory.jsp";
+    public static final String CATEGORY_EDIT_PAGE = "editCategory.jsp";
 
-    public static final String ORDER_ITEM_LIST_PAGE = "views/staff/orderitem/list.jsp";
-    public static final String ORDER_ITEM_CREATE_PAGE = "views/staff/orderitem/create.jsp";
-    public static final String ORDER_ITEM_EDIT_PAGE = "views/staff/orderitem/edit.jsp";
-    public static final String ORDER_DETAIL_PAGE = "views/staff/order/detail.jsp";
-    public static final String MY_ORDER_LIST_PAGE = "views/client/order/myOrderList.jsp";
-    public static final String MY_ORDER_DETAIL_PAGE = "views/client/order/myOrderDetail.jsp";
+    public static final String ORDER_LIST_PAGE = "staff_listOrder.jsp";
+    public static final String ORDER_CREATE_PAGE = "staff_createOrder.jsp";
+    public static final String ORDER_EDIT_PAGE = "staff_editOrder.jsp";
+    public static final String ORDER_DETAIL_PAGE = "staff_detailOrder.jsp";
 
-    public static final String ACCOUNT_LIST_PAGE = "views/admin/account/list.jsp";
-    public static final String ACCOUNT_CREATE_PAGE = "views/admin/account/create.jsp";
-    public static final String ACCOUNT_EDIT_PAGE = "views/admin/account/edit.jsp";
+    public static final String ORDER_ITEM_LIST_PAGE = "listOrderItem.jsp";
+    public static final String ORDER_ITEM_CREATE_PAGE = "createOrderItem.jsp";
+    public static final String ORDER_ITEM_EDIT_PAGE = "editOrderItem.jsp";
 
-    public static final String WISHLIST_LIST_PAGE = "views/client/wishlist/list.jsp";
-    public static final String WISHLIST_CREATE_PAGE = "views/client/wishlist/create.jsp";
-    public static final String WISHLIST_EDIT_PAGE = "views/client/wishlist/edit.jsp";
+    public static final String ACCOUNT_LIST_PAGE = "admin_listAccount.jsp";
+    public static final String ACCOUNT_CREATE_PAGE = "admin_createAccount.jsp";
+    public static final String ACCOUNT_EDIT_PAGE = "admin_editAccount.jsp";
 
-    public static final String REVIEW_LIST_PAGE = "views/client/review/list.jsp";
-    public static final String REVIEW_CREATE_PAGE = "views/client/review/create.jsp";
-    public static final String REVIEW_EDIT_PAGE = "views/client/review/edit.jsp";
+    public static final String WISHLIST_LIST_PAGE = "listWishlist.jsp";
+    public static final String WISHLIST_CREATE_PAGE = "createWishlist.jsp";
+    public static final String WISHLIST_EDIT_PAGE = "editWishlist.jsp";
+
+    public static final String REVIEW_LIST_PAGE = "listReview.jsp";
+    public static final String REVIEW_CREATE_PAGE = "createReview.jsp";
+    public static final String REVIEW_EDIT_PAGE = "editReview.jsp";
 
     // --- CONTROLLERS ---
     public static final String MAIN_CONTROLLER = "MainController";
@@ -93,6 +101,7 @@ public class AppConstants {
     public static final String ACTION_UPDATE_ORDER = "updateOrder";
     public static final String ACTION_SHOW_CHECKOUT = "showCheckout";
     public static final String ACTION_PLACE_ORDER_FROM_CART = "placeOrderFromCart";
+    public static final String ACTION_SHOW_QR_PAYMENT = "showQrPayment";
     public static final String ACTION_APPROVE_ORDER = "approveOrder";
     public static final String ACTION_CANCEL_ORDER = "cancelOrder";
     public static final String ACTION_LIST_MY_ORDER = "listMyOrder";
@@ -114,7 +123,9 @@ public class AppConstants {
     public static final String ACTION_DELETE_ACCOUNT = "deleteAccount";
     public static final String ACTION_EDIT_ACCOUNT = "editAccount";
     public static final String ACTION_UPDATE_ACCOUNT = "updateAccount";
-
+    public static final String ACTION_SHOW_ACCOUNT = "showAccount";
+    public static final String ACTION_UPDATE_PROFILE = "updateProfile";
+    
     // --- WISHLIST ACTIONS ---
     public static final String ACTION_LIST_WISHLIST = "listWishlist";
     public static final String ACTION_SHOW_CREATE_WISHLIST = "showCreateWishlist";

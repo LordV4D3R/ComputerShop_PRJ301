@@ -1,7 +1,10 @@
 package models;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import utils.JPAUtils;
 
@@ -46,6 +49,56 @@ public class WishlistDAO {
                 return wishlist;
             }
             return null;
+        } finally {
+            em.close();
+        }
+    }
+
+    public WishlistDTO getActiveWishlist(String accountId, String productId) {
+        EntityManager em = JPAUtils.getEntityManager();
+        try {
+            String jpql = "SELECT w FROM WishlistDTO w "
+                    + "WHERE w.accountId = :accountId "
+                    + "AND w.productId = :productId "
+                    + "AND w.isDeleted = false";
+
+            TypedQuery<WishlistDTO> query = em.createQuery(jpql, WishlistDTO.class);
+            query.setParameter("accountId", accountId);
+            query.setParameter("productId", productId);
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<WishlistDTO> getWishlistsByAccountId(String accountId) {
+        EntityManager em = JPAUtils.getEntityManager();
+        try {
+            String jpql = "SELECT w FROM WishlistDTO w "
+                    + "WHERE w.accountId = :accountId "
+                    + "AND w.isDeleted = false "
+                    + "ORDER BY w.createdAt DESC";
+
+            TypedQuery<WishlistDTO> query = em.createQuery(jpql, WishlistDTO.class);
+            query.setParameter("accountId", accountId);
+            return query.getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public Set<String> getWishlistedProductIdsByAccountId(String accountId) {
+        EntityManager em = JPAUtils.getEntityManager();
+        try {
+            String jpql = "SELECT w.productId FROM WishlistDTO w "
+                    + "WHERE w.accountId = :accountId "
+                    + "AND w.isDeleted = false";
+
+            TypedQuery<String> query = em.createQuery(jpql, String.class);
+            query.setParameter("accountId", accountId);
+            return new LinkedHashSet<String>(query.getResultList());
         } finally {
             em.close();
         }

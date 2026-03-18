@@ -1,5 +1,6 @@
 package controller;
 
+import java.net.URLEncoder;
 import models.OrderDAO;
 import models.OrderItemDAO;
 import models.ProductDAO;
@@ -108,6 +109,14 @@ public class OrderController extends HttpServlet {
                 }
 
             } else if (AppConstants.ACTION_SHOW_CHECKOUT.equals(action)) {
+                AccountDTO loginUser = getLoginUser(request);
+
+                if (!isCustomer(loginUser)) {
+                    request.getSession().setAttribute("errorMessage", "Vui lòng đăng nhập bằng tài khoản khách hàng để thanh toán.");
+                    response.sendRedirect(AppConstants.MAIN_CONTROLLER + "?action=" + AppConstants.ACTION_SHOW_LOGIN);
+                    return;
+                }
+
                 boolean hasCart = loadCheckoutData(request, productDAO);
 
                 if (!hasCart) {
@@ -120,6 +129,14 @@ public class OrderController extends HttpServlet {
                 url = AppConstants.CLIENT_CHECKOUT_PAGE;
 
             } else if (AppConstants.ACTION_PLACE_ORDER_FROM_CART.equals(action)) {
+                AccountDTO loginUser = getLoginUser(request);
+
+                if (!isCustomer(loginUser)) {
+                    request.getSession().setAttribute("errorMessage", "Vui lòng đăng nhập bằng tài khoản khách hàng để đặt hàng.");
+                    response.sendRedirect(AppConstants.MAIN_CONTROLLER + "?action=" + AppConstants.ACTION_SHOW_LOGIN);
+                    return;
+                }
+
                 String fullname = trim(request.getParameter("fullname"));
                 String phoneNumber = trim(request.getParameter("phoneNumber"));
                 String email = trim(request.getParameter("email"));
@@ -202,14 +219,7 @@ public class OrderController extends HttpServlet {
                     orderItems.add(orderItem);
                 }
 
-                AccountDTO loginUser = getLoginUser(request);
-                OrderDTO order;
-
-                if (isCustomer(loginUser) && !safe(loginUser.getId()).isEmpty()) {
-                    order = new OrderDTO(loginUser.getId(), address, phoneNumber, fullname, email, totalPrice, "PENDING");
-                } else {
-                    order = new OrderDTO(address, phoneNumber, fullname, email, totalPrice, "PENDING");
-                }
+                OrderDTO order = new OrderDTO(loginUser.getId(), address, phoneNumber, fullname, email, totalPrice, "PENDING");
 
                 boolean success = orderDAO.createOrderWithItems(order, orderItems);
 
@@ -224,15 +234,30 @@ public class OrderController extends HttpServlet {
 
                 clearCartCookie(response, request);
                 request.getSession().setAttribute("successMessage",
-                        "Đặt hàng thành công. Mã đơn: " + order.getId() + ". Nhân viên sẽ duyệt đơn sau.");
+                        "Đặt hàng thành công. Vui lòng quét QR để thanh toán cho đơn " + order.getId() + ".");
 
-                if (isCustomer(loginUser) && !safe(loginUser.getId()).isEmpty()) {
-                    response.sendRedirect(AppConstants.MAIN_CONTROLLER + "?action="
-                            + AppConstants.ACTION_SHOW_MY_ORDER_DETAIL + "&id=" + order.getId());
-                } else {
-                    response.sendRedirect(AppConstants.MAIN_CONTROLLER + "?action=" + AppConstants.ACTION_SHOW_SHOP);
-                }
+                response.sendRedirect(AppConstants.MAIN_CONTROLLER + "?action="
+                        + AppConstants.ACTION_SHOW_QR_PAYMENT + "&orderId=" + order.getId());
                 return;
+
+            } else if (AppConstants.ACTION_SHOW_QR_PAYMENT.equals(action)) {
+                String orderId = trim(request.getParameter("orderId"));
+                OrderDTO order = orderDAO.getOrderById(orderId);
+
+                if (order == null) {
+                    request.getSession().setAttribute("errorMessage", "Không tìm thấy đơn hàng để hiển thị mã QR.");
+                    response.sendRedirect(AppConstants.MAIN_CONTROLLER + "?action=" + AppConstants.ACTION_SHOW_SHOP);
+                    return;
+                }
+
+                request.setAttribute("order", order);
+                request.setAttribute("transferContent", buildTransferContent(order.getId()));
+                request.setAttribute("qrImageUrl", buildVietQrImageUrl(order));
+                request.setAttribute("vietQrBankId", AppConstants.VIETQR_BANK_ID);
+                request.setAttribute("vietQrAccountNumber", AppConstants.VIETQR_ACCOUNT_NUMBER);
+                request.setAttribute("vietQrAccountName", AppConstants.VIETQR_ACCOUNT_NAME);
+
+                url = AppConstants.CLIENT_QR_PAYMENT_PAGE;
 
             } else if (AppConstants.ACTION_SHOW_ORDER_DETAIL.equals(action)) {
                 String id = request.getParameter("id");
@@ -487,6 +512,37 @@ public class OrderController extends HttpServlet {
             return Double.parseDouble(value);
         } catch (Exception e) {
             return 0;
+        }
+    }
+
+    private String buildVietQrImageUrl(OrderDTO order) {
+        long amount = Math.round(order.getTotalPrice());
+        String transferContent = buildTransferContent(order.getId());
+
+        return AppConstants.VIETQR_BASE_URL
+                + AppConstants.VIETQR_BANK_ID + "-"
+                + AppConstants.VIETQR_ACCOUNT_NUMBER + "-"
+                + AppConstants.VIETQR_TEMPLATE + ".png"
+                + "?amount=" + amount
+                + "&addInfo=" + encodeUrl(transferContent)
+                + "&accountName=" + encodeUrl(AppConstants.VIETQR_ACCOUNT_NAME);
+    }
+
+    private String buildTransferContent(String orderId) {
+        String compactId = safe(orderId).replace("-", "").toUpperCase();
+
+        if (compactId.length() > 8) {
+            compactId = compactId.substring(0, 8);
+        }
+
+        return "DH" + compactId;
+    }
+
+    private String encodeUrl(String value) {
+        try {
+            return URLEncoder.encode(safe(value), "UTF-8");
+        } catch (Exception e) {
+            return "";
         }
     }
 

@@ -1,5 +1,6 @@
 package controller;
 
+import java.io.File;
 import models.ProductDAO;
 import models.CartItemViewDTO;
 import models.ProductDTO;
@@ -9,16 +10,29 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import utils.JPAUtils;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
+import models.AccountDTO;
+import models.WishlistDAO;
 
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024 * 2, // 2MB
+        maxFileSize = 1024 * 1024 * 10, // 10MB
+        maxRequestSize = 1024 * 1024 * 50 // 50MB
+)
 public class ProductController extends HttpServlet {
 
     private static final String CART_COOKIE_NAME = "cart";
@@ -31,13 +45,22 @@ public class ProductController extends HttpServlet {
         String action = request.getParameter("action");
         String url = AppConstants.PRODUCT_LIST_PAGE;
 
+        if (action == null || action.trim().isEmpty()) {
+            action = AppConstants.ACTION_SHOW_HOME;
+        }
         try {
             ProductDAO productDAO = new ProductDAO();
 
-            if (AppConstants.ACTION_LIST_PRODUCT.equals(action)) {
+            if (AppConstants.ACTION_SHOW_HOME.equals(action)) {
                 List<ProductDTO> listProduct = productDAO.getAllProducts();
+
+                if (listProduct.size() > 8) {
+                    listProduct = new ArrayList<ProductDTO>(listProduct.subList(0, 8));
+                }
+
                 request.setAttribute("listProduct", listProduct);
-                url = AppConstants.PRODUCT_LIST_PAGE;
+                loadWishlistState(request, listProduct);
+                url = AppConstants.HOME_PAGE;
 
             } else if (AppConstants.ACTION_SHOW_SHOP.equals(action)) {
                 String keyword = request.getParameter("keyword");
@@ -50,7 +73,13 @@ public class ProductController extends HttpServlet {
                 }
 
                 request.setAttribute("listProduct", listProduct);
+                loadWishlistState(request, listProduct);
                 url = AppConstants.CLIENT_SHOP_PAGE;
+
+            } else if (AppConstants.ACTION_LIST_PRODUCT.equals(action)) {
+                List<ProductDTO> listProduct = productDAO.getAllProducts();
+                request.setAttribute("listProduct", listProduct);
+                url = AppConstants.PRODUCT_LIST_PAGE;
 
             } else if (AppConstants.ACTION_ADD_TO_CART.equals(action)) {
                 String productId = request.getParameter("productId");
@@ -172,8 +201,29 @@ public class ProductController extends HttpServlet {
                 double price = Double.parseDouble(request.getParameter("price"));
                 int stockQuantity = Integer.parseInt(request.getParameter("stockQuantity"));
                 String description = request.getParameter("description");
-                String imageUrl = request.getParameter("imageUrl");
+                String imageUrl = request.getParameter("oldImageUrl");
+                if (imageUrl == null) {
+                    imageUrl = "";
+                }
 
+                Part filePart = request.getPart("imageFile");
+                if (filePart != null && filePart.getSize() > 0) {
+                    String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+                    String uniqueFileName = UUID.randomUUID().toString() + "_" + fileName;
+
+                    String uploadPath = request.getServletContext().getRealPath("/images/products");
+                    if (uploadPath == null) {
+                        uploadPath = request.getServletContext().getRealPath("") + File.separator + "images" + File.separator + "products";
+                    }
+
+                    File uploadDir = new File(uploadPath);
+                    if (!uploadDir.exists()) {
+                        uploadDir.mkdirs();
+                    }
+
+                    filePart.write(uploadPath + File.separator + uniqueFileName);
+                    imageUrl = "images/products/" + uniqueFileName;
+                }
                 ProductDTO newProduct = new ProductDTO(categoryId, name, brand, cpu, ram, storage, price, stockQuantity, description, imageUrl);
                 productDAO.create(newProduct);
 
@@ -391,6 +441,37 @@ public class ProductController extends HttpServlet {
         } finally {
             em.close();
         }
+    }
+
+    private void loadWishlistState(HttpServletRequest request, List<ProductDTO> listProduct) {
+        Map<String, Boolean> wishlistProductMap = new HashMap<String, Boolean>();
+        request.setAttribute("wishlistProductMap", wishlistProductMap);
+
+        AccountDTO loginUser = getLoginUser(request);
+        if (!isCustomer(loginUser) || listProduct == null || listProduct.isEmpty()) {
+            return;
+        }
+
+        WishlistDAO wishlistDAO = new WishlistDAO();
+        Set<String> wishlistedProductIds = wishlistDAO.getWishlistedProductIdsByAccountId(loginUser.getId());
+
+        for (ProductDTO product : listProduct) {
+            if (product != null && product.getId() != null) {
+                wishlistProductMap.put(product.getId(), wishlistedProductIds.contains(product.getId()));
+            }
+        }
+    }
+
+    private AccountDTO getLoginUser(HttpServletRequest request) {
+        Object obj = request.getSession().getAttribute(AppConstants.SESSION_LOGIN_USER);
+        if (obj instanceof AccountDTO) {
+            return (AccountDTO) obj;
+        }
+        return null;
+    }
+
+    private boolean isCustomer(AccountDTO account) {
+        return account != null && "CUSTOMER".equalsIgnoreCase(account.getRole());
     }
 
     @Override

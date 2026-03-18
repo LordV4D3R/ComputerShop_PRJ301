@@ -1,17 +1,18 @@
 package controller;
 
-import models.AccountDAO;
-import models.ProductDAO;
-import models.WishlistDAO;
-import models.AccountDTO;
-import models.ProductDTO;
-import models.WishlistDTO;
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import models.AccountDTO;
+import models.ProductDAO;
+import models.ProductDTO;
+import models.WishlistDAO;
+import models.WishlistDTO;
 import utils.AppConstants;
 
 public class WishlistController extends HttpServlet {
@@ -23,84 +24,185 @@ public class WishlistController extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("text/html; charset=UTF-8");
 
-        String action = request.getParameter("action");
+        String action = trim(request.getParameter("action"));
         String url = AppConstants.WISHLIST_LIST_PAGE;
 
         try {
             WishlistDAO wishlistDAO = new WishlistDAO();
-            AccountDAO accountDAO = new AccountDAO();
             ProductDAO productDAO = new ProductDAO();
+            AccountDTO loginUser = getLoginUser(request);
 
             if (AppConstants.ACTION_LIST_WISHLIST.equals(action)) {
-                List<WishlistDTO> listWishlist = wishlistDAO.getAllWishlists();
+                if (!ensureCustomer(request, response, loginUser)) {
+                    return;
+                }
+
+                List<WishlistDTO> listWishlist = wishlistDAO.getWishlistsByAccountId(loginUser.getId());
+                Map<String, ProductDTO> productMap = buildProductMap(listWishlist, productDAO);
+
                 request.setAttribute("listWishlist", listWishlist);
+                request.setAttribute("productMap", productMap);
                 url = AppConstants.WISHLIST_LIST_PAGE;
 
-            } else if (AppConstants.ACTION_SHOW_CREATE_WISHLIST.equals(action)) {
-                List<AccountDTO> listAccount = accountDAO.getAllAccounts();
-                List<ProductDTO> listProduct = productDAO.getAllProducts();
-
-                request.setAttribute("listAccount", listAccount);
-                request.setAttribute("listProduct", listProduct);
-                url = AppConstants.WISHLIST_CREATE_PAGE;
-
             } else if (AppConstants.ACTION_INSERT_WISHLIST.equals(action)) {
-                String accountId = request.getParameter("accountId");
-                String productId = request.getParameter("productId");
+                if (!ensureCustomer(request, response, loginUser)) {
+                    return;
+                }
 
-                WishlistDTO wishlist = new WishlistDTO(accountId, productId);
-                wishlistDAO.create(wishlist);
+                String productId = trim(request.getParameter("productId"));
+                String redirect = trim(request.getParameter("redirect"));
 
-                response.sendRedirect(AppConstants.MAIN_CONTROLLER + "?action=" + AppConstants.ACTION_LIST_WISHLIST);
-                return;
+                if (productId.isEmpty()) {
+                    request.getSession().setAttribute("errorMessage", "Không tìm thấy sản phẩm để thêm wishlist.");
+                    response.sendRedirect(buildRedirectUrl(request, redirect));
+                    return;
+                }
 
-            } else if (AppConstants.ACTION_EDIT_WISHLIST.equals(action)) {
-                String id = request.getParameter("id");
-                WishlistDTO wishlist = wishlistDAO.getWishlistById(id);
+                ProductDTO product = productDAO.getProductById(productId);
+                if (product == null) {
+                    request.getSession().setAttribute("errorMessage", "Sản phẩm không tồn tại hoặc đã bị xóa.");
+                    response.sendRedirect(buildRedirectUrl(request, redirect));
+                    return;
+                }
 
-                if (wishlist == null) {
-                    request.setAttribute("error", "Wishlist không tồn tại hoặc đã bị xóa.");
-                    request.setAttribute("listWishlist", wishlistDAO.getAllWishlists());
-                    url = AppConstants.WISHLIST_LIST_PAGE;
+                WishlistDTO existed = wishlistDAO.getActiveWishlist(loginUser.getId(), productId);
+                if (existed != null) {
+                    request.getSession().setAttribute("successMessage", "Sản phẩm đã có sẵn trong wishlist.");
+                    response.sendRedirect(buildRedirectUrl(request, redirect));
+                    return;
+                }
+
+                WishlistDTO wishlist = new WishlistDTO(loginUser.getId(), productId);
+                boolean created = wishlistDAO.create(wishlist);
+
+                if (created) {
+                    request.getSession().setAttribute("successMessage", "Đã thêm sản phẩm vào wishlist.");
                 } else {
-                    List<AccountDTO> listAccount = accountDAO.getAllAccounts();
-                    List<ProductDTO> listProduct = productDAO.getAllProducts();
-
-                    request.setAttribute("wishlist", wishlist);
-                    request.setAttribute("listAccount", listAccount);
-                    request.setAttribute("listProduct", listProduct);
-                    url = AppConstants.WISHLIST_EDIT_PAGE;
+                    request.getSession().setAttribute("errorMessage", "Không thể thêm sản phẩm vào wishlist.");
                 }
 
-            } else if (AppConstants.ACTION_UPDATE_WISHLIST.equals(action)) {
-                String id = request.getParameter("id");
-                WishlistDTO wishlist = wishlistDAO.getWishlistById(id);
-
-                if (wishlist != null) {
-                    wishlist.setAccountId(request.getParameter("accountId"));
-                    wishlist.setProductId(request.getParameter("productId"));
-                    wishlistDAO.update(wishlist);
-                }
-
-                response.sendRedirect(AppConstants.MAIN_CONTROLLER + "?action=" + AppConstants.ACTION_LIST_WISHLIST);
+                response.sendRedirect(buildRedirectUrl(request, redirect));
                 return;
 
             } else if (AppConstants.ACTION_DELETE_WISHLIST.equals(action)) {
-                String id = request.getParameter("id");
-                if (id != null && !id.trim().isEmpty()) {
-                    wishlistDAO.delete(id);
+                if (!ensureCustomer(request, response, loginUser)) {
+                    return;
                 }
 
-                response.sendRedirect(AppConstants.MAIN_CONTROLLER + "?action=" + AppConstants.ACTION_LIST_WISHLIST);
+                String id = trim(request.getParameter("id"));
+                String productId = trim(request.getParameter("productId"));
+                String redirect = trim(request.getParameter("redirect"));
+
+                WishlistDTO wishlist = null;
+
+                if (!id.isEmpty()) {
+                    wishlist = wishlistDAO.getWishlistById(id);
+                    if (wishlist != null && !loginUser.getId().equals(wishlist.getAccountId())) {
+                        wishlist = null;
+                    }
+                } else if (!productId.isEmpty()) {
+                    wishlist = wishlistDAO.getActiveWishlist(loginUser.getId(), productId);
+                }
+
+                if (wishlist == null) {
+                    request.getSession().setAttribute("errorMessage", "Không tìm thấy wishlist để xóa.");
+                    response.sendRedirect(buildRedirectUrl(request, redirect));
+                    return;
+                }
+
+                boolean deleted = wishlistDAO.delete(wishlist.getId());
+                if (deleted) {
+                    request.getSession().setAttribute("successMessage", "Đã xóa sản phẩm khỏi wishlist.");
+                } else {
+                    request.getSession().setAttribute("errorMessage", "Không thể xóa sản phẩm khỏi wishlist.");
+                }
+
+                response.sendRedirect(buildRedirectUrl(request, redirect));
+                return;
+
+            } else {
+                response.sendRedirect(request.getContextPath() + "/MainController?action=" + AppConstants.ACTION_LIST_WISHLIST);
                 return;
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("error", "Có lỗi tại WishlistController: " + e.getMessage());
+            request.getSession().setAttribute("errorMessage", "Có lỗi tại WishlistController: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/MainController?action=" + AppConstants.ACTION_SHOW_SHOP);
+            return;
         }
 
         request.getRequestDispatcher(url).forward(request, response);
+    }
+
+    private Map<String, ProductDTO> buildProductMap(List<WishlistDTO> listWishlist, ProductDAO productDAO) {
+        Map<String, ProductDTO> productMap = new LinkedHashMap<String, ProductDTO>();
+
+        if (listWishlist == null) {
+            return productMap;
+        }
+
+        for (WishlistDTO wishlist : listWishlist) {
+            if (wishlist == null) {
+                continue;
+            }
+
+            String productId = wishlist.getProductId();
+            if (productId == null || productId.trim().isEmpty() || productMap.containsKey(productId)) {
+                continue;
+            }
+
+            ProductDTO product = productDAO.getProductById(productId);
+            if (product != null) {
+                productMap.put(productId, product);
+            }
+        }
+
+        return productMap;
+    }
+
+    private boolean ensureCustomer(HttpServletRequest request, HttpServletResponse response, AccountDTO loginUser)
+            throws IOException {
+
+        if (loginUser == null) {
+            request.getSession().setAttribute("errorMessage", "Vui lòng đăng nhập để dùng tính năng wishlist.");
+            response.sendRedirect(request.getContextPath() + "/MainController?action=" + AppConstants.ACTION_SHOW_LOGIN);
+            return false;
+        }
+
+        if (!"CUSTOMER".equalsIgnoreCase(trim(loginUser.getRole()))) {
+            request.getSession().setAttribute("errorMessage", "Chỉ tài khoản CUSTOMER mới được dùng wishlist.");
+            response.sendRedirect(request.getContextPath() + "/MainController?action=" + AppConstants.ACTION_SHOW_SHOP);
+            return false;
+        }
+
+        return true;
+    }
+
+    private String buildRedirectUrl(HttpServletRequest request, String redirect) {
+        String contextPath = request.getContextPath();
+
+        if ("home".equalsIgnoreCase(redirect)) {
+            return contextPath + "/MainController?action=" + AppConstants.ACTION_SHOW_HOME;
+        }
+
+        if ("wishlist".equalsIgnoreCase(redirect)) {
+            return contextPath + "/MainController?action=" + AppConstants.ACTION_LIST_WISHLIST;
+        }
+
+        return contextPath + "/MainController?action=" + AppConstants.ACTION_SHOW_SHOP;
+    }
+
+    private AccountDTO getLoginUser(HttpServletRequest request) {
+        Object obj = request.getSession().getAttribute(AppConstants.SESSION_LOGIN_USER);
+        if (obj instanceof AccountDTO) {
+            return (AccountDTO) obj;
+        }
+        return null;
+    }
+
+    private String trim(String value) {
+        return value == null ? "" : value.trim();
     }
 
     @Override
