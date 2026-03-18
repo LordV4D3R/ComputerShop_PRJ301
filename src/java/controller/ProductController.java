@@ -201,6 +201,7 @@ public class ProductController extends HttpServlet {
                 double price = Double.parseDouble(request.getParameter("price"));
                 int stockQuantity = Integer.parseInt(request.getParameter("stockQuantity"));
                 String description = request.getParameter("description");
+                
                 String imageUrl = request.getParameter("oldImageUrl");
                 if (imageUrl == null) {
                     imageUrl = "";
@@ -224,6 +225,7 @@ public class ProductController extends HttpServlet {
                     filePart.write(uploadPath + File.separator + uniqueFileName);
                     imageUrl = "images/products/" + uniqueFileName;
                 }
+                
                 ProductDTO newProduct = new ProductDTO(categoryId, name, brand, cpu, ram, storage, price, stockQuantity, description, imageUrl);
                 productDAO.create(newProduct);
 
@@ -269,7 +271,33 @@ public class ProductController extends HttpServlet {
                     product.setPrice(Double.parseDouble(request.getParameter("price")));
                     product.setStockQuantity(Integer.parseInt(request.getParameter("stockQuantity")));
                     product.setDescription(request.getParameter("description"));
-                    product.setImageUrl(request.getParameter("imageUrl"));
+                    
+                    // XỬ LÝ ẢNH CHO PHẦN UPDATE
+                    String imageUrl = request.getParameter("oldImageUrl");
+                    if (imageUrl == null) {
+                        imageUrl = "";
+                    }
+
+                    Part filePart = request.getPart("imageFile");
+                    if (filePart != null && filePart.getSize() > 0) {
+                        String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+                        String uniqueFileName = UUID.randomUUID().toString() + "_" + fileName;
+
+                        String uploadPath = request.getServletContext().getRealPath("/images/products");
+                        if (uploadPath == null) {
+                            uploadPath = request.getServletContext().getRealPath("") + File.separator + "images" + File.separator + "products";
+                        }
+
+                        File uploadDir = new File(uploadPath);
+                        if (!uploadDir.exists()) {
+                            uploadDir.mkdirs();
+                        }
+
+                        filePart.write(uploadPath + File.separator + uniqueFileName);
+                        imageUrl = "images/products/" + uniqueFileName;
+                    }
+                    product.setImageUrl(imageUrl);
+                    // KẾT THÚC XỬ LÝ ẢNH
 
                     productDAO.update(product);
                 }

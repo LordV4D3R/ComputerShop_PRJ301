@@ -48,9 +48,21 @@
                                         <fmt:formatNumber value="${p.price}" type="number" pattern="#,##0"/> đ
                                     </div>
                                     <div class="product-specs">
-                                        <div><strong>CPU:</strong> ${p.cpu}</div>
-                                        <div><strong>RAM:</strong> ${p.ram}</div>
-                                        <div><strong>SSD:</strong> ${p.storage}</div>
+                                        <c:if test="${not empty p.cpu}">
+                                            <div><strong>CPU:</strong> ${p.cpu}</div>
+                                        </c:if>
+
+                                        <c:if test="${not empty p.ram}">
+                                            <div><strong>RAM:</strong> ${p.ram}</div>
+                                        </c:if>
+
+                                        <c:if test="${not empty p.storage}">
+                                            <div><strong>SSD:</strong> ${p.storage}</div>
+                                        </c:if>
+
+                                        <c:if test="${empty p.cpu and empty p.ram and empty p.storage and not empty p.description}">
+                                            <div><strong>Mô tả:</strong> ${p.description}</div>
+                                        </c:if>
                                     </div>
 
                                     <div style="margin-top: auto;">
