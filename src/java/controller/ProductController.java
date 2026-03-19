@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import models.AccountDTO;
 import models.WishlistDAO;
+import models.WishlistDTO;
 
 @MultipartConfig(
         fileSizeThreshold = 1024 * 1024 * 2, // 2MB
@@ -110,7 +111,16 @@ public class ProductController extends HttpServlet {
                         canReview = false;
                     }
                 }
-
+                Map<String, Boolean> wishlistProductMap = new HashMap<String, Boolean>();
+                if (isCustomer(loginUser)) {
+                    WishlistDAO wishlistDAO = new WishlistDAO();
+                    // Kiểm tra xem user này đã thả tim sản phẩm này chưa
+                    WishlistDTO activeWishlist = wishlistDAO.getActiveWishlist(loginUser.getId(), product.getId());
+                    wishlistProductMap.put(product.getId(), activeWishlist != null);
+                } else {
+                    wishlistProductMap.put(product.getId(), false);
+                }
+                request.setAttribute("wishlistProductMap", wishlistProductMap);
                 request.setAttribute("product", product);
                 request.setAttribute("categoryName", getCategoryNameById(product.getCategoryId()));
                 request.setAttribute("listReview", listReview);
@@ -260,7 +270,7 @@ public class ProductController extends HttpServlet {
                 Part filePart = request.getPart("imageFile");
                 if (filePart != null && filePart.getSize() > 0) {
                     String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
-                    String uniqueFileName = UUID.randomUUID().toString() + "_" + fileName;
+                    String uniqueFileName =fileName;
 
                     String uploadPath = request.getServletContext().getRealPath("/images/products");
                     if (uploadPath == null) {
@@ -331,7 +341,7 @@ public class ProductController extends HttpServlet {
                     Part filePart = request.getPart("imageFile");
                     if (filePart != null && filePart.getSize() > 0) {
                         String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
-                        String uniqueFileName = UUID.randomUUID().toString() + "_" + fileName;
+                        String uniqueFileName = fileName;
 
                         String uploadPath = request.getServletContext().getRealPath("/images/products");
                         if (uploadPath == null) {

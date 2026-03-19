@@ -6,7 +6,6 @@ import javax.persistence.Id;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import java.io.Serializable;
-import java.util.UUID;
 
 @Entity
 @Table(name = "product")
@@ -43,9 +42,6 @@ public class ProductDTO implements Serializable {
 
     @PrePersist
     protected void onCreate() {
-        if (this.id == null || this.id.isEmpty()) {
-            this.id = UUID.randomUUID().toString();
-        }
         this.isDeleted = false;
     }
 

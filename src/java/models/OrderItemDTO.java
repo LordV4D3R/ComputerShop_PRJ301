@@ -1,7 +1,6 @@
 package models;
 
 import java.io.Serializable;
-import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -32,9 +31,6 @@ public class OrderItemDTO implements Serializable {
 
     @PrePersist
     protected void onCreate() {
-        if (this.id == null || this.id.trim().isEmpty()) {
-            this.id = UUID.randomUUID().toString();
-        }
         this.isDeleted = false;
     }
 
@@ -78,7 +74,7 @@ public class OrderItemDTO implements Serializable {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
-    }    
+    }
 
     public double getPrice() {
         return price;

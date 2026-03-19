@@ -2,7 +2,6 @@ package models;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -45,11 +44,8 @@ public class OrderDTO implements Serializable {
 
     @PrePersist
     protected void onCreate() {
-        if (this.id == null || this.id.isEmpty()) {
-            this.id = UUID.randomUUID().toString();
-        }
         if (this.createdDate == null) {
-            this.createdDate = new Timestamp(System.currentTimeMillis());
+            this.createdDate = new java.sql.Timestamp(System.currentTimeMillis());
         }
         this.isDeleted = false;
     }

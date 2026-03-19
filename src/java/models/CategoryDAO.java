@@ -3,6 +3,7 @@ package models;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
+import utils.IdGenerator;
 import utils.JPAUtils;
 
 public class CategoryDAO {
@@ -12,11 +13,18 @@ public class CategoryDAO {
         EntityManager em = JPAUtils.getEntityManager();
         try {
             em.getTransaction().begin();
+
+            if (category.getId() == null || category.getId().trim().isEmpty()) {
+                category.setId(IdGenerator.nextCategoryId(em, category.getName()));
+            }
+
             em.persist(category);
             em.getTransaction().commit();
             return true;
         } catch (Exception e) {
-            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
             e.printStackTrace();
             return false;
         } finally {
@@ -41,7 +49,9 @@ public class CategoryDAO {
         EntityManager em = JPAUtils.getEntityManager();
         try {
             CategoryDTO c = em.find(CategoryDTO.class, id);
-            if (c != null && !c.isIsDeleted()) return c;
+            if (c != null && !c.isIsDeleted()) {
+                return c;
+            }
             return null;
         } finally {
             em.close();
@@ -70,7 +80,9 @@ public class CategoryDAO {
             em.getTransaction().commit();
             return true;
         } catch (Exception e) {
-            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
             e.printStackTrace();
             return false;
         } finally {
@@ -91,7 +103,9 @@ public class CategoryDAO {
             em.getTransaction().commit();
             return true;
         } catch (Exception e) {
-            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
             e.printStackTrace();
             return false;
         } finally {

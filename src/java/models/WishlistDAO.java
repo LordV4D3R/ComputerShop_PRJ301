@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
+import utils.IdGenerator;
 import utils.JPAUtils;
 
 public class WishlistDAO {
@@ -14,6 +15,11 @@ public class WishlistDAO {
         EntityManager em = JPAUtils.getEntityManager();
         try {
             em.getTransaction().begin();
+
+            if (wishlist.getId() == null || wishlist.getId().trim().isEmpty()) {
+                wishlist.setId(IdGenerator.nextWishlistId(em));
+            }
+
             em.persist(wishlist);
             em.getTransaction().commit();
             return true;

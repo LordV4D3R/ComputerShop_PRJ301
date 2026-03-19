@@ -6,6 +6,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
+import utils.IdGenerator;
 import utils.JPAUtils;
 
 public class OrderDAO {
@@ -14,6 +15,11 @@ public class OrderDAO {
         EntityManager em = JPAUtils.getEntityManager();
         try {
             em.getTransaction().begin();
+
+            if (order.getId() == null || order.getId().trim().isEmpty()) {
+                order.setId(IdGenerator.nextOrderId(em));
+            }
+
             em.persist(order);
             em.getTransaction().commit();
             return true;
@@ -33,10 +39,17 @@ public class OrderDAO {
         try {
             em.getTransaction().begin();
 
+            if (order.getId() == null || order.getId().trim().isEmpty()) {
+                order.setId(IdGenerator.nextOrderId(em));
+            }
+
             em.persist(order);
 
             if (orderItems != null) {
                 for (OrderItemDTO item : orderItems) {
+                    if (item.getId() == null || item.getId().trim().isEmpty()) {
+                        item.setId(IdGenerator.nextOrderItemId(em));
+                    }
                     item.setOrderId(order.getId());
                     em.persist(item);
                 }

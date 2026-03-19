@@ -3,6 +3,7 @@ package models;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
+import utils.IdGenerator;
 import utils.JPAUtils;
 
 public class ReviewDAO {
@@ -11,6 +12,11 @@ public class ReviewDAO {
         EntityManager em = JPAUtils.getEntityManager();
         try {
             em.getTransaction().begin();
+
+            if (review.getId() == null || review.getId().trim().isEmpty()) {
+                review.setId(IdGenerator.nextReviewId(em));
+            }
+
             em.persist(review);
             em.getTransaction().commit();
             return true;

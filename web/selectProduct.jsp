@@ -35,15 +35,21 @@
                         <c:forEach var="p" items="${listProduct}">
                             <div class="product-card">
                                 <div class="product-image-box">
-                                    <c:choose>
-                                        <c:when test="${not empty p.imageUrl}">
-                                            <img src="${pageContext.request.contextPath}/${p.imageUrl}" alt="${p.name}">
-                                        </c:when>
-                                        <c:otherwise><span style="color:#999;">No Image</span></c:otherwise>
-                                    </c:choose>
+                                    <a href="${pageContext.request.contextPath}/MainController?action=showProductDetail&id=${p.id}">
+                                        <c:choose>
+                                            <c:when test="${not empty p.imageUrl}">
+                                                <img src="${pageContext.request.contextPath}/${p.imageUrl}" alt="${p.name}">
+                                            </c:when>
+                                            <c:otherwise><span style="color:#999;">No Image</span></c:otherwise>
+                                        </c:choose>
+                                    </a>
                                 </div>
                                 <div class="product-body">
-                                    <div class="product-name">${p.name}</div>
+                                    <div class="product-name">
+                                        <a href="${pageContext.request.contextPath}/MainController?action=showProductDetail&id=${p.id}" style="text-decoration: none; color: inherit;">
+                                            ${p.name}
+                                        </a>
+                                    </div>
                                     <div class="product-price">
                                         <fmt:formatNumber value="${p.price}" type="number" pattern="#,##0"/> đ
                                     </div>

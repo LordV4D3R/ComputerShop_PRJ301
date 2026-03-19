@@ -4,6 +4,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
+import utils.IdGenerator;
 import utils.JPAUtils;
 import utils.PasswordUtils;
 
@@ -17,6 +18,11 @@ public class AccountDAO {
         EntityManager em = JPAUtils.getEntityManager();
         try {
             em.getTransaction().begin();
+
+            if (account.getId() == null || account.getId().trim().isEmpty()) {
+                account.setId(IdGenerator.nextAccountId(em, account.getRole()));
+            }
+
             em.persist(account);
             em.getTransaction().commit();
             return true;

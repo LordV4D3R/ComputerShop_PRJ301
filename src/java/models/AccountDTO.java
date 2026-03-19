@@ -1,7 +1,6 @@
 package models;
 
 import java.io.Serializable;
-import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -47,9 +46,6 @@ public class AccountDTO implements Serializable {
 
     @PrePersist
     protected void onCreate() {
-        if (this.id == null || this.id.trim().isEmpty()) {
-            this.id = UUID.randomUUID().toString();
-        }
         if (this.status == null || this.status.trim().isEmpty()) {
             this.status = "ACTIVE";
         }

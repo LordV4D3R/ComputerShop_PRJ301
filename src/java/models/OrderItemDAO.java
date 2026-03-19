@@ -3,6 +3,7 @@ package models;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
+import utils.IdGenerator;
 import utils.JPAUtils;
 
 public class OrderItemDAO {
@@ -11,6 +12,11 @@ public class OrderItemDAO {
         EntityManager em = JPAUtils.getEntityManager();
         try {
             em.getTransaction().begin();
+
+            if (item.getId() == null || item.getId().trim().isEmpty()) {
+                item.setId(IdGenerator.nextOrderItemId(em));
+            }
+
             em.persist(item);
             em.getTransaction().commit();
             return true;

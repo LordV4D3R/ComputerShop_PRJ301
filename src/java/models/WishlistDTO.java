@@ -2,7 +2,6 @@ package models;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -30,11 +29,8 @@ public class WishlistDTO implements Serializable {
 
     @PrePersist
     protected void onCreate() {
-        if (this.id == null || this.id.trim().isEmpty()) {
-            this.id = UUID.randomUUID().toString();
-        }
         if (this.createdAt == null) {
-            this.createdAt = new Timestamp(System.currentTimeMillis());
+            this.createdAt = new java.sql.Timestamp(System.currentTimeMillis());
         }
         this.isDeleted = false;
     }

@@ -3,7 +3,8 @@ package models;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
-import utils.JPAUtils; 
+import utils.IdGenerator;
+import utils.JPAUtils;
 
 public class ProductDAO {
 
@@ -12,7 +13,12 @@ public class ProductDAO {
         EntityManager em = JPAUtils.getEntityManager();
         try {
             em.getTransaction().begin();
-            em.persist(product); // ID và isDeleted sẽ được @PrePersist tự động xử lý
+
+            if (product.getId() == null || product.getId().trim().isEmpty()) {
+                product.setId(IdGenerator.nextProductId(em));
+            }
+
+            em.persist(product);
             em.getTransaction().commit();
             return true;
         } catch (Exception e) {
@@ -72,7 +78,7 @@ public class ProductDAO {
         EntityManager em = JPAUtils.getEntityManager();
         try {
             em.getTransaction().begin();
-            em.merge(product); 
+            em.merge(product);
             em.getTransaction().commit();
             return true;
         } catch (Exception e) {
@@ -96,7 +102,7 @@ public class ProductDAO {
             if (product != null) {
                 // Đổi trạng thái thành đã xóa thay vì dùng em.remove()
                 product.setIsDeleted(true);
-                em.merge(product); 
+                em.merge(product);
             }
             em.getTransaction().commit();
             return true;
