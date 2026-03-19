@@ -108,6 +108,26 @@
                     </form>
                 </div>
             </div>
-        </div>
+        </div> <script>
+            function previewImage(event) {
+                var input = event.target;
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        // Tìm thẻ img và thay đổi source thành ảnh mới
+                        var imgPreview = document.getElementById('imgPreview');
+                        imgPreview.src = e.target.result;
+                        imgPreview.style.display = 'block';
+
+                        // Ẩn chữ "Chưa có ảnh" (nếu có)
+                        var previewText = document.getElementById('previewText');
+                        if (previewText) {
+                            previewText.style.display = 'none';
+                        }
+                    }
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+        </script>
     </body>
 </html>

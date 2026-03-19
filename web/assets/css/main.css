@@ -228,3 +228,25 @@ a { text-decoration: none; }
 @media (max-width: 768px) { 
     .cta-box { flex-direction: column; text-align: center; gap: 20px; } 
 }
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.rating-stars { color: #f59e0b; font-size: 13px; margin-bottom: 8px; font-weight: bold; }
+.rating-count { color: #777; font-size: 12px; font-weight: normal; margin-left: 4px; }
+.wishlist-heart {
+    cursor: pointer;
+    font-size: 20px;
+    color: #999;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+.wishlist-heart:hover {
+    transform: scale(1.2);
+}
+.wishlist-heart.active {
+    color: #d70018 !important;
+}

@@ -18,19 +18,20 @@ import utils.AppConstants;
 public class AuthorizationFilter implements Filter {
 
     private static final Set<String> PUBLIC_ACTIONS = new HashSet<String>(Arrays.asList(
-        AppConstants.ACTION_SHOW_HOME,
-        AppConstants.ACTION_SHOW_LOGIN,
-        AppConstants.ACTION_LOGIN,
-        AppConstants.ACTION_LOGOUT,
-        AppConstants.ACTION_SHOW_REGISTER,
-        AppConstants.ACTION_REGISTER,
-        AppConstants.ACTION_SHOW_SHOP,
-        AppConstants.ACTION_ADD_TO_CART,
-        AppConstants.ACTION_SHOW_CART,
-        AppConstants.ACTION_INCREASE_CART_ITEM,
-        AppConstants.ACTION_DECREASE_CART_ITEM,
-        AppConstants.ACTION_REMOVE_FROM_CART
-));
+            AppConstants.ACTION_SHOW_HOME,
+            AppConstants.ACTION_SHOW_LOGIN,
+            AppConstants.ACTION_LOGIN,
+            AppConstants.ACTION_LOGOUT,
+            AppConstants.ACTION_SHOW_REGISTER,
+            AppConstants.ACTION_REGISTER,
+            AppConstants.ACTION_SHOW_SHOP,
+            AppConstants.ACTION_SHOW_PRODUCT_DETAIL,
+            AppConstants.ACTION_ADD_TO_CART,
+            AppConstants.ACTION_SHOW_CART,
+            AppConstants.ACTION_INCREASE_CART_ITEM,
+            AppConstants.ACTION_DECREASE_CART_ITEM,
+            AppConstants.ACTION_REMOVE_FROM_CART
+    ));
 
     private static final Set<String> ADMIN_ACTIONS = new HashSet<String>(Arrays.asList(
             AppConstants.ACTION_LIST_ACCOUNT,
@@ -68,27 +69,27 @@ public class AuthorizationFilter implements Filter {
             AppConstants.ACTION_INSERT_ORDER_ITEM,
             AppConstants.ACTION_DELETE_ORDER_ITEM,
             AppConstants.ACTION_EDIT_ORDER_ITEM,
-            AppConstants.ACTION_UPDATE_ORDER_ITEM
+            AppConstants.ACTION_UPDATE_ORDER_ITEM,
+            AppConstants.ACTION_LIST_REVIEW,
+            AppConstants.ACTION_DELETE_REVIEW,
+            AppConstants.ACTION_EDIT_REVIEW,
+            AppConstants.ACTION_UPDATE_REVIEW
     ));
 
     private static final Set<String> CUSTOMER_ONLY_ACTIONS = new HashSet<String>(Arrays.asList(
-        AppConstants.ACTION_SHOW_CHECKOUT,
-        AppConstants.ACTION_PLACE_ORDER_FROM_CART,
-        AppConstants.ACTION_LIST_MY_ORDER,
-        AppConstants.ACTION_SHOW_MY_ORDER_DETAIL,
-        AppConstants.ACTION_LIST_WISHLIST,
-        AppConstants.ACTION_SHOW_CREATE_WISHLIST,
-        AppConstants.ACTION_INSERT_WISHLIST,
-        AppConstants.ACTION_DELETE_WISHLIST,
-        AppConstants.ACTION_EDIT_WISHLIST,
-        AppConstants.ACTION_UPDATE_WISHLIST,
-        AppConstants.ACTION_LIST_REVIEW,
-        AppConstants.ACTION_SHOW_CREATE_REVIEW,
-        AppConstants.ACTION_INSERT_REVIEW,
-        AppConstants.ACTION_DELETE_REVIEW,
-        AppConstants.ACTION_EDIT_REVIEW,
-        AppConstants.ACTION_UPDATE_REVIEW
-));
+            AppConstants.ACTION_SHOW_CHECKOUT,
+            AppConstants.ACTION_PLACE_ORDER_FROM_CART,
+            AppConstants.ACTION_LIST_MY_ORDER,
+            AppConstants.ACTION_SHOW_MY_ORDER_DETAIL,
+            AppConstants.ACTION_LIST_WISHLIST,
+            AppConstants.ACTION_SHOW_CREATE_WISHLIST,
+            AppConstants.ACTION_INSERT_WISHLIST,
+            AppConstants.ACTION_DELETE_WISHLIST,
+            AppConstants.ACTION_EDIT_WISHLIST,
+            AppConstants.ACTION_UPDATE_WISHLIST,
+            AppConstants.ACTION_SHOW_CREATE_REVIEW,
+            AppConstants.ACTION_INSERT_REVIEW
+    ));
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {

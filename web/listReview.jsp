@@ -5,71 +5,71 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Danh sách Review</title>
+    <title>Quản lý Đánh giá | Admin</title>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/css/main.css">
+    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/css/dashboard.css">
 </head>
 <body>
+    <div class="dashboard-wrapper">
+        <jsp:include page="/includes/sidebar_staff.jsp" />
 
-    <h2 class="page-title">Danh sách Review</h2>
+        <div class="main-content">
+            <h2 class="page-title">Danh sách Đánh giá (Review)</h2>
 
-    <c:if test="${not empty error}">
-        <p class="text-danger">${error}</p>
-    </c:if>
+            <c:if test="${not empty error}">
+                <div style="background: #ffebee; color: #c62828; padding: 12px; border-radius: 6px; margin-bottom: 16px;">${error}</div>
+            </c:if>
 
-    <div style="margin-bottom: 15px;">
-        <a class="btn btn-add" href="${pageContext.request.contextPath}/MainController?action=showCreateReview">
-            + Thêm Review
-        </a>
-    </div>
-
-    <div class="table-container" style="overflow-x: auto;">
-        <table>
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>ID</th>
-                    <th>Product ID</th>
-                    <th>Account ID</th>
-                    <th>Rating</th>
-                    <th>Comment</th>
-                    <th>Created At</th>
-                    <th style="text-align: center;">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <c:choose>
-                    <c:when test="${not empty listReview}">
-                        <c:forEach var="r" items="${listReview}" varStatus="st">
-                            <tr>
-                                <td>${st.count}</td>
-                                <td>${r.id}</td>
-                                <td><strong>${r.productId}</strong></td>
-                                <td><strong>${r.accountId}</strong></td>
-                                <td>
-                                    <span style="color: #f39c12; font-weight: bold;">${r.rating} / 5</span>
-                                </td>
-                                <td>${r.comment}</td>
-                                <td>${r.createdAt}</td>
-                                <td style="text-align: center; white-space: nowrap;">
-                                    <a class="btn btn-edit" href="${pageContext.request.contextPath}/MainController?action=editReview&id=${r.id}">
-                                        Edit
-                                    </a>
-                                    <a class="btn btn-delete" href="${pageContext.request.contextPath}/MainController?action=deleteReview&id=${r.id}" onclick="return confirm('Xóa review này?');">
-                                        Delete
-                                    </a>
-                                </td>
-                            </tr>
-                        </c:forEach>
-                    </c:when>
-                    <c:otherwise>
+            <div class="table-wrapper" style="overflow-x: auto;">
+                <table class="data-table" style="min-width: 1000px;">
+                    <thead>
                         <tr>
-                            <td colspan="8" style="text-align:center; padding: 20px;">Chưa có review nào.</td>
+                            <th>#</th>
+                            <th>Mã SP (Product ID)</th>
+                            <th>Người đăng (Account ID)</th>
+                            <th style="text-align: center;">Số sao</th>
+                            <th>Nội dung (Comment)</th>
+                            <th>Ngày đăng</th>
+                            <th style="text-align: center;">Thao tác</th>
                         </tr>
-                    </c:otherwise>
-                </c:choose>
-            </tbody>
-        </table>
+                    </thead>
+                    <tbody>
+                        <c:choose>
+                            <c:when test="${not empty listReview}">
+                                <c:forEach var="r" items="${listReview}" varStatus="st">
+                                    <tr>
+                                        <td>${st.count}</td>
+                                        <td><strong>${r.productId}</strong></td>
+                                        <td><span style="color: #666;">${r.accountId}</span></td>
+                                        <td style="text-align: center;">
+                                            <span style="color: #f59e0b; font-weight: bold; font-size: 15px;">⭐ ${r.rating}</span>
+                                        </td>
+                                        <td style="max-width: 300px;">
+                                            <div class="text-truncate-2">${r.comment}</div>
+                                        </td>
+                                        <td style="font-size: 13px;">${r.createdAt}</td>
+                                        <td style="text-align: center; white-space: nowrap;">
+                                            
+                                            <a class="btn-sm btn-view" style="background: #1976d2; color: white; border: none;" href="${pageContext.request.contextPath}/MainController?action=editReview&id=${r.id}">Xem chi tiết</a>
+                                            
+                                            <c:if test="${sessionScope.LOGIN_USER.role eq 'ADMIN'}">
+                                                <a class="btn-sm btn-cancel" href="${pageContext.request.contextPath}/MainController?action=deleteReview&id=${r.id}" onclick="return confirm('Hành động này không thể hoàn tác. Bạn chắc chắn xóa bài đánh giá này?');">Xóa</a>
+                                            </c:if>
+                                            
+                                        </td>
+                                    </tr>
+                                </c:forEach>
+                            </c:when>
+                            <c:otherwise>
+                                <tr>
+                                    <td colspan="7" style="text-align:center; padding: 30px; color: #777;">Chưa có bài đánh giá nào.</td>
+                                </tr>
+                            </c:otherwise>
+                        </c:choose>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-
 </body>
 </html>

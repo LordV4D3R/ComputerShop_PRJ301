@@ -47,6 +47,10 @@
                                     <div class="product-price">
                                         <fmt:formatNumber value="${p.price}" type="number" pattern="#,##0"/> đ
                                     </div>
+                                    <div class="rating-stars">
+                                        ⭐ <fmt:formatNumber value="${ratingMap[p.id]}" pattern="0.0"/>
+                                        <span class="rating-count">(${countMap[p.id]} đánh giá)</span>
+                                    </div>
                                     <div class="product-specs">
                                         <c:if test="${not empty p.cpu}">
                                             <div><strong>CPU:</strong> ${p.cpu}</div>
@@ -61,7 +65,7 @@
                                         </c:if>
 
                                         <c:if test="${empty p.cpu and empty p.ram and empty p.storage and not empty p.description}">
-                                            <div><strong>Mô tả:</strong> ${p.description}</div>
+                                            <div class="text-truncate-2"><strong>Mô tả:</strong> ${p.description}</div>
                                         </c:if>
                                     </div>
 
@@ -77,18 +81,18 @@
                                             </c:otherwise>
                                         </c:choose>
 
-                                        <div style="margin-top: 10px;">
+                                        <div style="margin-top: 10px; text-align: right;">
                                             <c:choose>
                                                 <c:when test="${wishlistProductMap[p.id]}">
-                                                    <a class="btn btn-outline" style="width: 100%; display: inline-block; text-align: center;"
+                                                    <a class="wishlist-heart active" title="Bỏ yêu thích"
                                                        href="${pageContext.request.contextPath}/MainController?action=deleteWishlist&productId=${p.id}&redirect=shop">
-                                                        Bỏ yêu thích
+                                                        ♥️
                                                     </a>
                                                 </c:when>
                                                 <c:otherwise>
-                                                    <a class="btn btn-outline" style="width: 100%; display: inline-block; text-align: center;"
+                                                    <a class="wishlist-heart" title="Thêm vào yêu thích"
                                                        href="${pageContext.request.contextPath}/MainController?action=insertWishlist&productId=${p.id}&redirect=shop">
-                                                        Yêu thích
+                                                        ♡
                                                     </a>
                                                 </c:otherwise>
                                             </c:choose>

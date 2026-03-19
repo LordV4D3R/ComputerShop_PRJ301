@@ -45,7 +45,10 @@
 
                             <div style="flex: 1; min-width: 300px;">
                                 <h1 style="margin-top: 0; margin-bottom: 10px;">${product.name}</h1>
-
+                                <div class="rating-stars" style="font-size: 16px; margin-bottom: 10px;">
+                                    ⭐ <fmt:formatNumber value="${averageRating}" pattern="0.0"/>
+                                    <span class="rating-count">(${reviewCount} đánh giá)</span>
+                                </div>
                                 <div style="font-size: 28px; font-weight: bold; color: #e53935; margin-bottom: 20px;">
                                     <fmt:formatNumber value="${product.price}" type="number" pattern="#,##0"/> đ
                                 </div>
@@ -109,9 +112,103 @@
                                        href="${pageContext.request.contextPath}/MainController?action=showShop">
                                         Xem thêm sản phẩm
                                     </a>
+
+                                    <c:choose>
+                                        <c:when test="${wishlistProductMap[product.id]}">
+                                            <a class="wishlist-heart active" title="Bỏ yêu thích" style="margin-left: auto; line-height: 40px;"
+                                               href="${pageContext.request.contextPath}/MainController?action=deleteWishlist&productId=${product.id}&redirect=detail">
+                                                ♥️
+                                            </a>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <a class="wishlist-heart" title="Thêm vào yêu thích" style="margin-left: auto; line-height: 40px;"
+                                               href="${pageContext.request.contextPath}/MainController?action=insertWishlist&productId=${product.id}&redirect=detail">
+                                                ♡
+                                            </a>
+                                        </c:otherwise>
+                                    </c:choose>
+
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div style="margin-top: 30px; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px;">
+                        <h2 style="margin-top: 0; margin-bottom: 20px;">Đánh giá sản phẩm</h2>
+
+                        <c:choose>
+                            <c:when test="${not empty listReview}">
+                                <div style="display: grid; gap: 16px;">
+                                    <c:forEach var="r" items="${listReview}">
+                                        <div style="border: 1px solid #eee; border-radius: 10px; padding: 16px;">
+                                            <div style="font-weight: bold; margin-bottom: 8px;">
+                                                ${r.rating}/5 sao
+                                            </div>
+
+                                            <c:if test="${not empty r.comment}">
+                                                <div style="margin-bottom: 8px;">${r.comment}</div>
+                                            </c:if>
+
+                                            <div style="font-size: 13px; color: #777;">
+                                                <fmt:formatDate value="${r.createdAt}" pattern="dd/MM/yyyy HH:mm"/>
+                                            </div>
+                                        </div>
+                                    </c:forEach>
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <div style="color: #666;">Chưa có đánh giá nào cho sản phẩm này.</div>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+
+                    <div style="margin-top: 24px; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px;">
+                        <h2 style="margin-top: 0; margin-bottom: 20px;">Viết đánh giá</h2>
+
+                        <c:choose>
+                            <c:when test="${empty sessionScope['LOGIN_USER']}">
+                                <div style="color:#666;">
+                                    Bạn cần đăng nhập tài khoản CUSTOMER và mua sản phẩm này để có thể đánh giá.
+                                </div>
+                            </c:when>
+
+                            <c:when test="${reviewedAlready}">
+                                <div style="color:#2e7d32;">
+                                    Bạn đã đánh giá sản phẩm này rồi.
+                                </div>
+                            </c:when>
+
+                            <c:when test="${canReview}">
+                                <form action="${pageContext.request.contextPath}/MainController" method="post">
+                                    <input type="hidden" name="action" value="insertReview">
+                                    <input type="hidden" name="productId" value="${product.id}">
+
+                                    <div style="margin-bottom: 15px;">
+                                        <label for="rating"><strong>Số sao:</strong></label><br>
+                                        <select name="rating" id="rating" required style="padding: 8px; min-width: 120px;">
+                                            <option value="">-- Chọn sao --</option>
+                                            <option value="5">5 sao</option>
+                                            <option value="4">4 sao</option>
+                                            <option value="3">3 sao</option>
+                                            <option value="2">2 sao</option>
+                                            <option value="1">1 sao</option>
+                                        </select>
+                                    </div>
+
+                                    <div style="margin-bottom: 15px;">
+                                        <label for="comment"><strong>Nhận xét:</strong></label><br>
+                                        <textarea name="comment" id="comment" rows="4" style="width: 100%; padding: 10px;"></textarea>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
+                                </form>
+                            </c:when>
+
+                            <c:otherwise>
+                                <div style="color:#666;">
+                                    Bạn chỉ có thể đánh giá sau khi đã mua sản phẩm này và đơn hàng đã được duyệt.
+                                </div>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
                 </c:when>
 

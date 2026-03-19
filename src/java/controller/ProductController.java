@@ -1,5 +1,8 @@
 package controller;
 
+import models.OrderDAO;
+import models.ReviewDAO;
+import models.ReviewDTO;
 import java.io.File;
 import models.ProductDAO;
 import models.CartItemViewDTO;
@@ -13,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +64,7 @@ public class ProductController extends HttpServlet {
 
                 request.setAttribute("listProduct", listProduct);
                 loadWishlistState(request, listProduct);
+                loadProductRatings(request, listProduct);
                 url = AppConstants.HOME_PAGE;
 
             } else if (AppConstants.ACTION_SHOW_SHOP.equals(action)) {
@@ -74,6 +79,7 @@ public class ProductController extends HttpServlet {
 
                 request.setAttribute("listProduct", listProduct);
                 loadWishlistState(request, listProduct);
+                loadProductRatings(request, listProduct);
                 url = AppConstants.CLIENT_SHOP_PAGE;
 
             } else if (AppConstants.ACTION_SHOW_PRODUCT_DETAIL.equals(action)) {
@@ -86,8 +92,32 @@ public class ProductController extends HttpServlet {
                     return;
                 }
 
+                ReviewDAO reviewDAO = new ReviewDAO();
+                List<ReviewDTO> listReview = reviewDAO.getReviewsByProductId(id);
+                double averageRating = calculateAverageRating(listReview);
+                int reviewCount = listReview.size();
+                Map<String, String> reviewerNameMap = getReviewerNameMap(listReview);
+                boolean canReview = false;
+                boolean reviewedAlready = false;
+
+                AccountDTO loginUser = getLoginUser(request);
+                if (isCustomer(loginUser)) {
+                    OrderDAO orderDAO = new OrderDAO();
+                    canReview = orderDAO.hasPurchasedApprovedProduct(loginUser.getId(), id);
+                    reviewedAlready = reviewDAO.hasReviewByAccountAndProduct(loginUser.getId(), id);
+
+                    if (reviewedAlready) {
+                        canReview = false;
+                    }
+                }
+
                 request.setAttribute("product", product);
                 request.setAttribute("categoryName", getCategoryNameById(product.getCategoryId()));
+                request.setAttribute("listReview", listReview);
+                request.setAttribute("canReview", canReview);
+                request.setAttribute("reviewedAlready", reviewedAlready);
+                request.setAttribute("averageRating", averageRating);
+                request.setAttribute("reviewCount", reviewCount);
                 url = AppConstants.PRODUCT_DETAIL_PAGE;
 
             } else if (AppConstants.ACTION_LIST_PRODUCT.equals(action)) {
@@ -541,6 +571,81 @@ public class ProductController extends HttpServlet {
 
     private boolean isCustomer(AccountDTO account) {
         return account != null && "CUSTOMER".equalsIgnoreCase(account.getRole());
+    }
+
+    private double calculateAverageRating(List<ReviewDTO> listReview) {
+        if (listReview == null || listReview.isEmpty()) {
+            return 0;
+        }
+
+        int total = 0;
+        for (ReviewDTO review : listReview) {
+            if (review != null) {
+                total += review.getRating();
+            }
+        }
+
+        return (double) total / listReview.size();
+    }
+
+    private Map<String, String> getReviewerNameMap(List<ReviewDTO> listReview) {
+        Map<String, String> reviewerNameMap = new HashMap<String, String>();
+
+        if (listReview == null || listReview.isEmpty()) {
+            return reviewerNameMap;
+        }
+
+        Set<String> accountIds = new HashSet<String>();
+        for (ReviewDTO review : listReview) {
+            if (review != null && review.getAccountId() != null && !review.getAccountId().trim().isEmpty()) {
+                accountIds.add(review.getAccountId());
+            }
+        }
+
+        if (accountIds.isEmpty()) {
+            return reviewerNameMap;
+        }
+
+        EntityManager em = JPAUtils.getEntityManager();
+        try {
+            String jpql = "SELECT a.id, a.fullname, a.username "
+                    + "FROM AccountDTO a "
+                    + "WHERE a.id IN :ids AND a.isDeleted = false";
+
+            TypedQuery<Object[]> query = em.createQuery(jpql, Object[].class);
+            query.setParameter("ids", accountIds);
+
+            List<Object[]> rows = query.getResultList();
+            for (Object[] row : rows) {
+                String id = row[0] != null ? row[0].toString() : "";
+                String fullname = row[1] != null ? row[1].toString().trim() : "";
+                String username = row[2] != null ? row[2].toString().trim() : "";
+
+                if (!id.isEmpty()) {
+                    reviewerNameMap.put(id, !fullname.isEmpty() ? fullname : username);
+                }
+            }
+        } finally {
+            em.close();
+        }
+
+        return reviewerNameMap;
+    }
+
+    private void loadProductRatings(HttpServletRequest request, List<ProductDTO> listProduct) {
+        Map<String, Double> ratingMap = new HashMap<String, Double>();
+        Map<String, Integer> countMap = new HashMap<String, Integer>();
+        ReviewDAO reviewDAO = new ReviewDAO();
+
+        if (listProduct != null) {
+            for (ProductDTO p : listProduct) {
+                List<ReviewDTO> reviews = reviewDAO.getReviewsByProductId(p.getId());
+                ratingMap.put(p.getId(), calculateAverageRating(reviews));
+                countMap.put(p.getId(), reviews.size());
+            }
+        }
+        request.setAttribute("ratingMap", ratingMap);
+        request.setAttribute("countMap", countMap);
     }
 
     @Override

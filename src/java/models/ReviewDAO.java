@@ -90,4 +90,36 @@ public class ReviewDAO {
             em.close();
         }
     }
+
+    public List<ReviewDTO> getReviewsByProductId(String productId) {
+        EntityManager em = JPAUtils.getEntityManager();
+        try {
+            String jpql = "SELECT r FROM ReviewDTO r "
+                    + "WHERE r.productId = :productId "
+                    + "AND r.isDeleted = false "
+                    + "ORDER BY r.createdAt DESC";
+            TypedQuery<ReviewDTO> query = em.createQuery(jpql, ReviewDTO.class);
+            query.setParameter("productId", productId);
+            return query.getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public boolean hasReviewByAccountAndProduct(String accountId, String productId) {
+        EntityManager em = JPAUtils.getEntityManager();
+        try {
+            String jpql = "SELECT COUNT(r) FROM ReviewDTO r "
+                    + "WHERE r.accountId = :accountId "
+                    + "AND r.productId = :productId "
+                    + "AND r.isDeleted = false";
+            TypedQuery<Long> query = em.createQuery(jpql, Long.class);
+            query.setParameter("accountId", accountId);
+            query.setParameter("productId", productId);
+            Long count = query.getSingleResult();
+            return count != null && count > 0;
+        } finally {
+            em.close();
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package models;
 
+import javax.persistence.TypedQuery;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -259,6 +260,33 @@ public class OrderDAO {
             }
             e.printStackTrace();
             return "Có lỗi xảy ra khi hủy đơn hàng.";
+        } finally {
+            em.close();
+        }
+    }
+
+    public boolean hasPurchasedApprovedProduct(String accountId, String productId) {
+        EntityManager em = JPAUtils.getEntityManager();
+        try {
+            if (accountId == null || accountId.trim().isEmpty()
+                    || productId == null || productId.trim().isEmpty()) {
+                return false;
+            }
+
+            String jpql = "SELECT COUNT(oi) FROM OrderItemDTO oi, OrderDTO o "
+                    + "WHERE oi.orderId = o.id "
+                    + "AND o.accountId = :accountId "
+                    + "AND oi.productId = :productId "
+                    + "AND o.status = 'APPROVED' "
+                    + "AND o.isDeleted = false "
+                    + "AND oi.isDeleted = false";
+
+            TypedQuery<Long> query = em.createQuery(jpql, Long.class);
+            query.setParameter("accountId", accountId);
+            query.setParameter("productId", productId);
+
+            Long count = query.getSingleResult();
+            return count != null && count > 0;
         } finally {
             em.close();
         }

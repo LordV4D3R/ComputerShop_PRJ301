@@ -54,21 +54,21 @@ public class WishlistController extends HttpServlet {
 
                 if (productId.isEmpty()) {
                     request.getSession().setAttribute("errorMessage", "Không tìm thấy sản phẩm để thêm wishlist.");
-                    response.sendRedirect(buildRedirectUrl(request, redirect));
+                    response.sendRedirect(buildRedirectUrl(request, redirect, productId));
                     return;
                 }
 
                 ProductDTO product = productDAO.getProductById(productId);
                 if (product == null) {
                     request.getSession().setAttribute("errorMessage", "Sản phẩm không tồn tại hoặc đã bị xóa.");
-                    response.sendRedirect(buildRedirectUrl(request, redirect));
+                    response.sendRedirect(buildRedirectUrl(request, redirect, productId));
                     return;
                 }
 
                 WishlistDTO existed = wishlistDAO.getActiveWishlist(loginUser.getId(), productId);
                 if (existed != null) {
                     request.getSession().setAttribute("successMessage", "Sản phẩm đã có sẵn trong wishlist.");
-                    response.sendRedirect(buildRedirectUrl(request, redirect));
+                    response.sendRedirect(buildRedirectUrl(request, redirect, productId));
                     return;
                 }
 
@@ -81,7 +81,7 @@ public class WishlistController extends HttpServlet {
                     request.getSession().setAttribute("errorMessage", "Không thể thêm sản phẩm vào wishlist.");
                 }
 
-                response.sendRedirect(buildRedirectUrl(request, redirect));
+                response.sendRedirect(buildRedirectUrl(request, redirect, productId));
                 return;
 
             } else if (AppConstants.ACTION_DELETE_WISHLIST.equals(action)) {
@@ -106,7 +106,7 @@ public class WishlistController extends HttpServlet {
 
                 if (wishlist == null) {
                     request.getSession().setAttribute("errorMessage", "Không tìm thấy wishlist để xóa.");
-                    response.sendRedirect(buildRedirectUrl(request, redirect));
+                    response.sendRedirect(buildRedirectUrl(request, redirect, productId));
                     return;
                 }
 
@@ -117,7 +117,7 @@ public class WishlistController extends HttpServlet {
                     request.getSession().setAttribute("errorMessage", "Không thể xóa sản phẩm khỏi wishlist.");
                 }
 
-                response.sendRedirect(buildRedirectUrl(request, redirect));
+                response.sendRedirect(buildRedirectUrl(request, redirect, productId));
                 return;
 
             } else {
@@ -179,7 +179,7 @@ public class WishlistController extends HttpServlet {
         return true;
     }
 
-    private String buildRedirectUrl(HttpServletRequest request, String redirect) {
+    private String buildRedirectUrl(HttpServletRequest request, String redirect, String productId) {
         String contextPath = request.getContextPath();
 
         if ("home".equalsIgnoreCase(redirect)) {
@@ -188,6 +188,11 @@ public class WishlistController extends HttpServlet {
 
         if ("wishlist".equalsIgnoreCase(redirect)) {
             return contextPath + "/MainController?action=" + AppConstants.ACTION_LIST_WISHLIST;
+        }
+
+        // ĐOẠN MỚI THÊM VÀO ĐỂ XỬ LÝ REDIRECT CHO TRANG CHI TIẾT (KÈM ID SẢN PHẨM)
+        if ("detail".equalsIgnoreCase(redirect) && productId != null && !productId.trim().isEmpty()) {
+            return contextPath + "/MainController?action=" + AppConstants.ACTION_SHOW_PRODUCT_DETAIL + "&id=" + productId;
         }
 
         return contextPath + "/MainController?action=" + AppConstants.ACTION_SHOW_SHOP;
