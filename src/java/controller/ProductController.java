@@ -76,21 +76,9 @@ public class ProductController extends HttpServlet {
                 loadWishlistState(request, listProduct);
                 url = AppConstants.CLIENT_SHOP_PAGE;
 
-            } else if (AppConstants.ACTION_LIST_PRODUCT.equals(action)) {
-                List<ProductDTO> listProduct = productDAO.getAllProducts();
-                request.setAttribute("listProduct", listProduct);
-                url = AppConstants.PRODUCT_LIST_PAGE;
-
-            } else if (AppConstants.ACTION_ADD_TO_CART.equals(action)) {
-                String productId = request.getParameter("productId");
-
-                if (productId == null || productId.trim().isEmpty()) {
-                    request.getSession().setAttribute("errorMessage", "Không tìm thấy sản phẩm để thêm vào giỏ.");
-                    response.sendRedirect(AppConstants.MAIN_CONTROLLER + "?action=" + AppConstants.ACTION_SHOW_SHOP);
-                    return;
-                }
-
-                ProductDTO product = productDAO.getProductById(productId);
+            } else if (AppConstants.ACTION_SHOW_PRODUCT_DETAIL.equals(action)) {
+                String id = request.getParameter("id");
+                ProductDTO product = productDAO.getProductById(id);
 
                 if (product == null) {
                     request.getSession().setAttribute("errorMessage", "Sản phẩm không tồn tại hoặc đã bị xóa.");
@@ -98,9 +86,41 @@ public class ProductController extends HttpServlet {
                     return;
                 }
 
+                request.setAttribute("product", product);
+                request.setAttribute("categoryName", getCategoryNameById(product.getCategoryId()));
+                url = AppConstants.PRODUCT_DETAIL_PAGE;
+
+            } else if (AppConstants.ACTION_LIST_PRODUCT.equals(action)) {
+                List<ProductDTO> listProduct = productDAO.getAllProducts();
+                request.setAttribute("listProduct", listProduct);
+                url = AppConstants.PRODUCT_LIST_PAGE;
+
+            } else if (AppConstants.ACTION_ADD_TO_CART.equals(action)) {
+                String productId = request.getParameter("productId");
+                String redirect = request.getParameter("redirect");
+
+                String redirectUrl = AppConstants.MAIN_CONTROLLER + "?action=" + AppConstants.ACTION_SHOW_SHOP;
+                if ("detail".equals(redirect) && productId != null && !productId.trim().isEmpty()) {
+                    redirectUrl = AppConstants.MAIN_CONTROLLER + "?action=" + AppConstants.ACTION_SHOW_PRODUCT_DETAIL + "&id=" + productId;
+                }
+
+                if (productId == null || productId.trim().isEmpty()) {
+                    request.getSession().setAttribute("errorMessage", "Không tìm thấy sản phẩm để thêm vào giỏ.");
+                    response.sendRedirect(redirectUrl);
+                    return;
+                }
+
+                ProductDTO product = productDAO.getProductById(productId);
+
+                if (product == null) {
+                    request.getSession().setAttribute("errorMessage", "Sản phẩm không tồn tại hoặc đã bị xóa.");
+                    response.sendRedirect(redirectUrl);
+                    return;
+                }
+
                 if (product.getStockQuantity() <= 0) {
                     request.getSession().setAttribute("errorMessage", "Sản phẩm đã hết hàng.");
-                    response.sendRedirect(AppConstants.MAIN_CONTROLLER + "?action=" + AppConstants.ACTION_SHOW_SHOP);
+                    response.sendRedirect(redirectUrl);
                     return;
                 }
 
@@ -113,7 +133,7 @@ public class ProductController extends HttpServlet {
                 response.addCookie(cartCookie);
 
                 request.getSession().setAttribute("successMessage", "Đã thêm sản phẩm vào giỏ hàng thành công.");
-                response.sendRedirect(AppConstants.MAIN_CONTROLLER + "?action=" + AppConstants.ACTION_SHOW_SHOP);
+                response.sendRedirect(redirectUrl);
                 return;
 
             } else if (AppConstants.ACTION_SHOW_CART.equals(action)) {
@@ -201,7 +221,7 @@ public class ProductController extends HttpServlet {
                 double price = Double.parseDouble(request.getParameter("price"));
                 int stockQuantity = Integer.parseInt(request.getParameter("stockQuantity"));
                 String description = request.getParameter("description");
-                
+
                 String imageUrl = request.getParameter("oldImageUrl");
                 if (imageUrl == null) {
                     imageUrl = "";
@@ -225,7 +245,7 @@ public class ProductController extends HttpServlet {
                     filePart.write(uploadPath + File.separator + uniqueFileName);
                     imageUrl = "images/products/" + uniqueFileName;
                 }
-                
+
                 ProductDTO newProduct = new ProductDTO(categoryId, name, brand, cpu, ram, storage, price, stockQuantity, description, imageUrl);
                 productDAO.create(newProduct);
 
@@ -271,7 +291,7 @@ public class ProductController extends HttpServlet {
                     product.setPrice(Double.parseDouble(request.getParameter("price")));
                     product.setStockQuantity(Integer.parseInt(request.getParameter("stockQuantity")));
                     product.setDescription(request.getParameter("description"));
-                    
+
                     // XỬ LÝ ẢNH CHO PHẦN UPDATE
                     String imageUrl = request.getParameter("oldImageUrl");
                     if (imageUrl == null) {
@@ -466,6 +486,27 @@ public class ProductController extends HttpServlet {
             String jpql = "SELECT c FROM CategoryDTO c WHERE c.isDeleted = false ORDER BY c.name ASC";
             TypedQuery<CategoryDTO> query = em.createQuery(jpql, CategoryDTO.class);
             return query.getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    private String getCategoryNameById(String categoryId) {
+        if (categoryId == null || categoryId.trim().isEmpty()) {
+            return "";
+        }
+
+        EntityManager em = JPAUtils.getEntityManager();
+        try {
+            String jpql = "SELECT c.name FROM CategoryDTO c WHERE c.id = :id AND c.isDeleted = false";
+            TypedQuery<String> query = em.createQuery(jpql, String.class);
+            query.setParameter("id", categoryId);
+
+            List<String> result = query.setMaxResults(1).getResultList();
+            if (result != null && !result.isEmpty()) {
+                return result.get(0);
+            }
+            return "";
         } finally {
             em.close();
         }

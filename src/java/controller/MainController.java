@@ -10,9 +10,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @MultipartConfig(
-    fileSizeThreshold = 1024 * 1024 * 2, // 2MB
-    maxFileSize = 1024 * 1024 * 10,      // 10MB
-    maxRequestSize = 1024 * 1024 * 50    // 50MB
+        fileSizeThreshold = 1024 * 1024 * 2, // 2MB
+        maxFileSize = 1024 * 1024 * 10, // 10MB
+        maxRequestSize = 1024 * 1024 * 50 // 50MB
 )
 public class MainController extends HttpServlet {
 
@@ -56,6 +56,7 @@ public class MainController extends HttpServlet {
                     || AppConstants.ACTION_EDIT_PRODUCT.equals(action)
                     || AppConstants.ACTION_UPDATE_PRODUCT.equals(action)
                     || AppConstants.ACTION_SHOW_SHOP.equals(action)
+                    || AppConstants.ACTION_SHOW_PRODUCT_DETAIL.equals(action)
                     || AppConstants.ACTION_ADD_TO_CART.equals(action)
                     || AppConstants.ACTION_SHOW_CART.equals(action)
                     || AppConstants.ACTION_INCREASE_CART_ITEM.equals(action)

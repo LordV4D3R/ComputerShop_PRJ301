@@ -24,6 +24,7 @@ public class AppConstants {
     public static final String PRODUCT_LIST_PAGE = "listProduct.jsp";
     public static final String PRODUCT_CREATE_PAGE = "createProduct.jsp";
     public static final String PRODUCT_EDIT_PAGE = "editProduct.jsp";
+    public static final String PRODUCT_DETAIL_PAGE = "productDetail.jsp";
 
     public static final String CATEGORY_LIST_PAGE = "listCategory.jsp";
     public static final String CATEGORY_CREATE_PAGE = "createCategory.jsp";
@@ -78,6 +79,7 @@ public class AppConstants {
     public static final String ACTION_EDIT_PRODUCT = "editProduct";
     public static final String ACTION_UPDATE_PRODUCT = "updateProduct";
     public static final String ACTION_SHOW_SHOP = "showShop";
+    public static final String ACTION_SHOW_PRODUCT_DETAIL = "showProductDetail";
     public static final String ACTION_ADD_TO_CART = "addToCart";
     public static final String ACTION_SHOW_CART = "showCart";
     public static final String ACTION_INCREASE_CART_ITEM = "increaseCartItem";
@@ -125,7 +127,7 @@ public class AppConstants {
     public static final String ACTION_UPDATE_ACCOUNT = "updateAccount";
     public static final String ACTION_SHOW_ACCOUNT = "showAccount";
     public static final String ACTION_UPDATE_PROFILE = "updateProfile";
-    
+
     // --- WISHLIST ACTIONS ---
     public static final String ACTION_LIST_WISHLIST = "listWishlist";
     public static final String ACTION_SHOW_CREATE_WISHLIST = "showCreateWishlist";
