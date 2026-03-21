@@ -79,26 +79,36 @@ public final class IdGenerator {
         return nextNumericId(em, "wishlist", "WISH_", 3);
     }
 
+    // --- BẢN CẬP NHẬT: TÌM MAX BẰNG JAVA ĐỂ TRÁNH LỖI DẤU "_" ---
     private static String nextNumericId(EntityManager em, String tableName, String prefix, int padLength) {
-        String sql = "SELECT TOP 1 id FROM " + tableName + " WHERE id LIKE ? ORDER BY id DESC";
+        // Cắt bỏ dấu '_' ở cuối để fetch tất cả dữ liệu (Vd: lấy tất cả ACC_CUS thay vì ACC_CUS_)
+        String searchPrefix = prefix.substring(0, prefix.length() - 1) + "%";
+        String sql = "SELECT id FROM " + tableName + " WHERE id LIKE ?";
         Query query = em.createNativeQuery(sql);
-        query.setParameter(1, prefix + "%");
+        query.setParameter(1, searchPrefix);
 
         @SuppressWarnings("unchecked")
         List<Object> results = query.getResultList();
 
-        int nextNumber = 1;
-        if (!results.isEmpty() && results.get(0) != null) {
-            String lastId = results.get(0).toString();
-            nextNumber = extractNumber(lastId, prefix) + 1;
+        int maxNumber = 0;
+        
+        // Quét bằng Java để lấy ra con số chính xác nhất
+        for (Object obj : results) {
+            if (obj != null) {
+                int num = extractNumber(obj.toString(), prefix);
+                if (num > maxNumber) {
+                    maxNumber = num;
+                }
+            }
         }
 
+        int nextNumber = maxNumber + 1;
         return prefix + String.format("%0" + padLength + "d", nextNumber);
     }
 
     private static int extractNumber(String id, String prefix) {
         if (id == null || !id.startsWith(prefix)) {
-            return 0;
+            return 0; // Bỏ qua những ID không chuẩn (ví dụ ACC_CUS1)
         }
 
         String numberPart = id.substring(prefix.length()).replaceAll("[^0-9]", "");
@@ -106,8 +116,13 @@ public final class IdGenerator {
             return 0;
         }
 
-        return Integer.parseInt(numberPart);
+        try {
+            return Integer.parseInt(numberPart);
+        } catch (Exception e) {
+            return 0;
+        }
     }
+    // -----------------------------------------------------------
 
     private static String buildCategoryCode(String name) {
         if (name == null || name.trim().isEmpty()) {
